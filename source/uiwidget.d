@@ -52,6 +52,7 @@ class UiWidget : VerticalLayout
 
         _cam = new Camera();
         //_cam.translate(vec3(0, 14, -7));
+        _scale = 10_000.0f;
 
         _scene.activeCamera = _cam;
 
@@ -133,93 +134,26 @@ class UiWidget : VerticalLayout
 
     //MinerDrawable _minerDrawable;
 
+    float _scale;
     int lastMouseX;
     int lastMouseY;
     /// process key event, return true if event is processed.
-    override bool onMouseEvent(MouseEvent event) {
-        //if (event.action == MouseAction.ButtonDown) {
-        //    lastMouseX = event.x;
-        //    lastMouseY = event.y;
-        //    if (event.button == MouseButton.Left && false) {
-        //        int x = event.x;
-        //        int y = event.y;
-        //        int xindex = 0;
-        //        if (x > width * 2 / 3)
-        //            xindex = 2;
-        //        else if (x > width * 1 / 3)
-        //            xindex = 1;
-        //        int yindex = 0;
-        //        if (y > height * 2 / 3)
-        //            yindex = 2;
-        //        else if (y > height * 1 / 3)
-        //            yindex = 1;
-        //        int index = yindex * 3 + xindex;
-        //        /*
-        //           index:
-        //             0  1  2
-        //             3  4  5
-        //             6  7  8
-        //        */
-        //        switch(index) {
-        //            default:
-        //            case 1:
-        //            case 4:
-        //                //_world.camPosition.forward(1);
-        //                //updateCamPosition();
-        //                startMoveAnimation(_world.camPosition.direction.forward);
-        //                break;
-        //            case 0:
-        //            case 3:
-        //                _world.camPosition.turnLeft();
-        //                updateCamPosition();
-        //                break;
-        //            case 2:
-        //            case 5:
-        //                _world.camPosition.turnRight();
-        //                updateCamPosition();
-        //                break;
-        //            case 7:
-        //                //_world.camPosition.backward(1);
-        //                //updateCamPosition();
-        //                startMoveAnimation(-_world.camPosition.direction.forward);
-        //                break;
-        //            case 6:
-        //                //_world.camPosition.moveLeft();
-        //                //updateCamPosition();
-        //                startMoveAnimation(_world.camPosition.direction.left);
-        //                break;
-        //            case 8:
-        //                //_world.camPosition.moveRight();
-        //                //updateCamPosition();
-        //                startMoveAnimation(_world.camPosition.direction.right);
-        //                break;
-        //        }
-        //    }
-        //} else if (event.action == MouseAction.Move) {
-        //    if (event.lbutton.isDown) {
-        //        int deltaX = event.x - lastMouseX;
-        //        int deltaY = event.y - lastMouseY;
-        //        int maxshift = width > 100 ? width : 100;
-        //        float deltaAngleX = deltaX * 45.0f / maxshift;
-        //        float deltaAngleY = deltaY * 45.0f / maxshift;
-        //        lastMouseX = event.x;
-        //        lastMouseY = event.y;
-        //        float newAngle = _angle + deltaAngleX;
-        //        if (newAngle < -180)
-        //            newAngle += 360;
-        //        else if (newAngle > 180)
-        //            newAngle -= 360;
-        //        setAngle(newAngle, true);
-        //        float newAngleY = _yAngle + deltaAngleY;
-        //        if (newAngleY < -65)
-        //            newAngleY = -65;
-        //        else if (newAngleY > 65)
-        //            newAngleY = 65;
-        //        setYAngle(newAngleY, true);
-        //    }
-        //} else if (event.action == MouseAction.ButtonUp || event.action == MouseAction.Cancel) {
-        //    stopMoveAnimation();
-        //}
+    override bool onMouseEvent(MouseEvent event)
+    {
+    	import dlangui.core.events : MouseAction;
+
+        if (event.action == MouseAction.ButtonDown)
+        {
+        	// do nothing
+        }
+        else if (event.action == MouseAction.Wheel)
+        {
+            if (event.wheelDelta)
+            {
+            	enum delta = 0.05;
+            	_scale *= (1 + delta*event.wheelDelta);
+            }
+        }
         return true;
     }
 
@@ -499,7 +433,7 @@ class UiWidget : VerticalLayout
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //_cam.setPerspective(rc.width, rc.height, 45.0f, 0.3, MAX_VIEW_DISTANCE);
-        _cam.setOrtho(-20_000, 20_000, -20_000, 20_000, -20_000, 20_000);
+        _cam.setOrtho(-_scale, _scale, -_scale, _scale, -_scale, _scale);
         _cam.setIdentity();
         //_cam.translate(_animatingPosition);
         //_cam.rotateY(_animatingAngle);
