@@ -45,6 +45,7 @@ class UiWidget : VerticalLayout
         } catch (Exception e) {
             Log.e("Failed to parse dml", e);
         }
+
         // assign OpenGL drawable to child widget background
         childById("glView").backgroundDrawable = DrawableRef(new OpenGLDrawable(&doDraw));
 
@@ -59,13 +60,13 @@ class UiWidget : VerticalLayout
         import maplayer : MapLayer;
         _scene.addChild(new Node3d("RootNode", new MapLayer()));
 
-
         focusable = true;
     }
 
     float _scale;
     int lastMouseX;
     int lastMouseY;
+
     /// process key event, return true if event is processed.
     override bool onMouseEvent(MouseEvent event)
     {
