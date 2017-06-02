@@ -169,8 +169,14 @@ class UiWidget : VerticalLayout
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        _cam.setOrtho(-_scale, _scale, -_scale, _scale, -_scale, _scale);
         _cam.setIdentity();
+        _cam.setOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+        _cam.lookAt(
+            vec3(0.0, 0.0, _scale), // Камера находится в мировых координатах
+            vec3(0.0, 0.0, _scale), // И направлена в начало координат
+            vec3(0.0, 1.0, 0.0)
+        );
+        _cam.scale(_scale);
         
         _scene.drawScene(false);
     }
