@@ -12,6 +12,8 @@ import dlangui.core.math3d : vec3;
 
 class UiWidget : VerticalLayout
 {
+    import maplayer : MapLayer;
+
     this()
     {
     	import dlangui.dml.parser : parseML;
@@ -49,21 +51,15 @@ class UiWidget : VerticalLayout
         // assign OpenGL drawable to child widget background
         childById("glView").backgroundDrawable = DrawableRef(new OpenGLDrawable(&doDraw));
 
-        _scene = new Scene3d();
-
-        _cam = new Camera();
         _scale = 10_000.0f;
         _camera_pos = vec3(0, 0, 0);
 
-        _scene.activeCamera = _cam;
-
-        import dlangui.graphics.scene.node : Node3d;
-        import maplayer : MapLayer;
-        _scene.addChild(new Node3d("RootNode", new MapLayer()));
+        _layer = new MapLayer();
 
         focusable = true;
     }
 
+    MapLayer _layer;
     float _scale;
     vec3 _camera_pos;
     int lastMouseX;
@@ -155,10 +151,6 @@ class UiWidget : VerticalLayout
     override void animate(long interval) {
     }
 
-    Scene3d _scene;
-    Camera _cam;
-
-
     /// this is OpenGLDrawableDelegate implementation
     private void doDraw(Rect windowRect, Rect rc) {
     	
@@ -167,24 +159,35 @@ class UiWidget : VerticalLayout
     	const int MAX_VIEW_DISTANCE = 120;
 
     	// clear the whole window
-        glViewport(0, 0, width, height);
+        glViewport(0, 0, rc.width, rc.height);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        _cam.setIdentity();
-        _cam.setOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-        _cam.lookAt(
-            vec3(0.0, 0.0, _scale), // Камера находится в мировых координатах
-            vec3(0.0, 0.0, _scale), // И направлена в начало координат
-            vec3(0.0, 1.0, 0.0)
+        import gfm.math : mat4f;
+        mat4f projection = void, view = void, mvp_matrix = void, model = mat4f.identity;
+
+        auto aspect_ratio = rc.width / cast(double) rc.height;
+
+        if(rc.width <= rc.height)
+            projection = mat4f.orthographic(-_scale, +_scale,-_scale/aspect_ratio, +_scale/aspect_ratio, -_scale, +_scale);
+        else
+            projection = mat4f.orthographic(-_scale*aspect_ratio,+_scale*aspect_ratio,-_scale, +_scale, -_scale, +_scale);
+
+        import gfm.math : vec3f;
+        // Матрица камеры
+        view = mat4f.lookAt(
+            vec3f(_camera_pos.x, _camera_pos.y, +_scale), // Камера находится в мировых координатах
+            vec3f(_camera_pos.x, _camera_pos.y, -_scale), // И направлена в начало координат
+            vec3f(0, 1, 0)  // "Голова" находится сверху
         );
-        _cam.scale(_scale);
-        _cam.translate(_camera_pos);
-        
-        _scene.drawScene(false);
+
+        // Итоговая матрица ModelViewProjection, которая является результатом перемножения наших трех матриц
+        mvp_matrix = projection * view * model;
+
+        _layer.draw(mvp_matrix);
     }
 
     ~this() {
-        destroy(_scene);
+        destroy(_layer);
     }
 }

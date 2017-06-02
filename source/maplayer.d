@@ -1,9 +1,6 @@
 module maplayer;
 
-import dlangui.graphics.scene.node : Node3d;
-import dlangui.graphics.scene.drawableobject : DrawableObject;
-
-class MapLayer : DrawableObject
+class MapLayer
 {
 	import std.experimental.logger : NullLogger, FileLogger;
 	import gfm.opengl : OpenGL, GLProgram;
@@ -12,8 +9,6 @@ class MapLayer : DrawableObject
 	this()
 	{
 		import gfm.opengl;
-
-		super();
 
 		import std.stdio : stdout;
         _logger = new FileLogger(stdout);
@@ -76,12 +71,8 @@ class MapLayer : DrawableObject
         _gl.destroy();
 	}
 
-	override void draw(Node3d node, bool wireframe)
+	void draw(M)(ref M mvp)
 	{
-		import gfm.math : mat4f;
-
-		auto mvp = mat4f(node.projectionViewModelMatrix.m);
-		
 		program.uniform("mvp_matrix").set(mvp);
         program.use();
         scope(exit) program.unuse();
