@@ -53,6 +53,7 @@ class UiWidget : VerticalLayout
 
         _cam = new Camera();
         _scale = 10_000.0f;
+        _camera_pos = vec3(0, 0, 0);
 
         _scene.activeCamera = _cam;
 
@@ -64,6 +65,7 @@ class UiWidget : VerticalLayout
     }
 
     float _scale;
+    vec3 _camera_pos;
     int lastMouseX;
     int lastMouseY;
 
@@ -177,6 +179,7 @@ class UiWidget : VerticalLayout
             vec3(0.0, 1.0, 0.0)
         );
         _cam.scale(_scale);
+        _cam.translate(_camera_pos);
         
         _scene.drawScene(false);
     }
