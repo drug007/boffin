@@ -57,8 +57,11 @@ class MapLayer : DrawableObject
 
         import gfm.math : vec3f, vec4f;
         vertices = [
-        	Vertex(vec3f(0.0, 0.0, 0.0), vec4f(1.0, 0.0, 0.0, 1.0)),
-        	Vertex(vec3f(10000.0, 10000.0, 0.0), vec4f(0.0, 0.0, 1.0, 1.0)),
+        	Vertex(vec3f(-10000.0, -10000.0, 0.0), vec4f(1.0, 0.0, 0.0, 1.0)), 
+            Vertex(vec3f( 10000.0, -10000.0, 0.0), vec4f(1.0, 1.0, 0.0, 1.0)),
+            Vertex(vec3f( 10000.0,  10000.0, 0.0), vec4f(1.0, 0.0, 1.0, 1.0)),
+            Vertex(vec3f(-10000.0,  10000.0, 0.0), vec4f(1.0, 1.0, 1.0, 1.0)),
+            Vertex(vec3f(-10000.0, -10000.0, 0.0), vec4f(0.0, 0.0, 1.0, 1.0)), 
         ];
 
         program = new GLProgram(_gl, program_source);
@@ -83,7 +86,7 @@ class MapLayer : DrawableObject
         program.use();
         scope(exit) program.unuse();
 
-        glprovider.drawVertices([VertexSlice(VertexSlice.Kind.LineStrip, 0, 2)]);
+        glprovider.drawVertices([VertexSlice(VertexSlice.Kind.LineStrip, 0, 5)]);
 
         _gl.runtimeCheck();
     }
