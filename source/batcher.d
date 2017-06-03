@@ -1,6 +1,6 @@
 module batcher;
 
-import gfm.math: vec3f, vec4f;
+public import gfm.math: vec3f, vec4f;
 import gfm.opengl: GLenum, GL_TRIANGLES, GL_POINTS, GL_LINE_STRIP, GLBuffer, 
 	OpenGL, GLVAO, GLProgram, VertexSpecification;
 

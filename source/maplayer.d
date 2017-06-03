@@ -29,38 +29,62 @@ class MapLayer
             #if VERTEX_SHADER
             layout(location = 0) in vec3 position;
             layout(location = 1) in vec4 color;
-            out vec4 fragment;
+            out vec4 vColor;
             uniform mat4 mvp_matrix;
             void main()
             {
                 gl_Position = mvp_matrix * vec4(position.xyz, 1.0);
                 gl_PointSize = 3.0;                
-                fragment = color;
+                vColor = color;
+            }
+            #endif
+
+            #if GEOMETRY_SHADER
+            layout(points) in;
+            layout(line_strip, max_vertices = 11) out;
+
+            in vec4 vColor[]; // Output from vertex shader for each vertex
+            out vec4 fColor;  // Output to fragment shader
+
+            const float PI = 3.1415926;
+
+            void main()
+            {
+                fColor = vColor[0]; // Point has only one vertex
+
+                float size = 0.002;
+                float sides = 4;
+
+                for (int i = 0; i <= sides; i++) {
+                    // Angle between each side in radians
+                    float ang = PI * 2.0 / sides * i;
+
+                    // Offset from center of point (3 and 4 to accomodate for aspect ratio)
+                    vec4 offset = vec4(cos(ang) * 3 * size, -sin(ang) * 4 * size, 0.0, 0.0);
+                    gl_Position = gl_in[0].gl_Position + offset;
+
+                    EmitVertex();
+                }
+
+                EndPrimitive();
             }
             #endif
 
             #if FRAGMENT_SHADER
-            in vec4 fragment;
+            in vec4 fColor;
             out vec4 color_out;
 
             void main()
             {
-                color_out = fragment;
+                color_out = fColor;
             }
             #endif
         };
 
-        import gfm.math : vec3f, vec4f;
-        vertices = [
-        	Vertex(vec3f(-10000.0, -10000.0, 0.0), vec4f(1.0, 0.0, 0.0, 1.0)), 
-            Vertex(vec3f( 10000.0, -10000.0, 0.0), vec4f(1.0, 1.0, 0.0, 1.0)),
-            Vertex(vec3f( 10000.0,  10000.0, 0.0), vec4f(1.0, 0.0, 1.0, 1.0)),
-            Vertex(vec3f(-10000.0,  10000.0, 0.0), vec4f(1.0, 1.0, 1.0, 1.0)),
-            Vertex(vec3f(-10000.0, -10000.0, 0.0), vec4f(0.0, 0.0, 1.0, 1.0)), 
-        ];
+        import data : v12_89;
 
         program = new GLProgram(_gl, program_source);
-        glprovider = new GLProvider(_gl, program, vertices);
+        glprovider = new GLProvider(_gl, program, v12_89);
 	}
 
 	~this()
@@ -77,7 +101,8 @@ class MapLayer
         program.use();
         scope(exit) program.unuse();
 
-        glprovider.drawVertices([VertexSlice(VertexSlice.Kind.LineStrip, 0, 5)]);
+        import data : vs12_89;
+        glprovider.drawVertices(vs12_89);
 
         _gl.runtimeCheck();
     }

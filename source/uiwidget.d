@@ -113,7 +113,8 @@ class UiWidget : VerticalLayout
         childById("glView").backgroundDrawable = DrawableRef(new OpenGLDrawable(&doDraw));
 
         _camera = new Camera(100, 100);
-        _camera.size = 10_000.0f;
+        _camera.size = 30_000.0f;
+        _camera.position = vec3f(30_000, 30_000, 0);
 
         _layer = new MapLayer();
 
