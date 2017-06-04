@@ -76,7 +76,12 @@ auto v12_89 = [
 	Vertex(vec3f(59601.7,  31186.4, 0), vec4f(1.0, 1.0, 1.0, 1.0)),
 ];
 
-auto vs12_89 = [
+auto vs12_89_line = [
+	//VertexSlice(VertexSlice.Kind.LineStrip, 0, 28),
+	VertexSlice(VertexSlice.Kind.LineStrip, 0, 28),
+];
+
+auto vs12_89_point = [
 	//VertexSlice(VertexSlice.Kind.LineStrip, 0, 28),
 	VertexSlice(VertexSlice.Kind.Points, 0, 28),
 ];

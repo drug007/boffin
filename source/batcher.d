@@ -115,7 +115,7 @@ private:
 
 class GLProvider
 {
-    this(ref OpenGL gl, ref GLProgram program, Vertex[] vertices)
+    this(OpenGL gl, VertexSpecification!Vertex vertex_specification, Vertex[] vertices)
     {
     	import std.array : array;
     	import std.algorithm : map;
@@ -132,7 +132,7 @@ class GLProvider
         _ibo = new GLBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, _indices);
 
         // Create an OpenGL vertex description from the Vertex structure.
-        _vert_spec = new VertexSpecification!Vertex(program);
+        _vert_spec = vertex_specification;
 
         _vao_points = new GLVAO(gl);
         // prepare VAO
