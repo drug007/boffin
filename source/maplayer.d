@@ -48,6 +48,7 @@ class MapLayer
                 out vec4 fColor;  // Output to fragment shader
 
                 uniform float aspect_ratio;
+                uniform float pixel_width;
 
                 const float PI = 3.1415926;
 
@@ -55,14 +56,14 @@ class MapLayer
                 {
                     fColor = vColor[0]; // Point has only one vertex
 
-                    float size = 0.004;
+                    float size = 8 / pixel_width;
                     float sides = 16;
 
                     for (int i = 0; i <= sides; i++) {
                         // Angle between each side in radians
                         float ang = PI * 2.0 / sides * i;
 
-                        // Offset from center of point (3 and 4 to accomodate for aspect ratio)
+                        // Offset from center of point
                         vec4 offset = vec4(cos(ang) * size, -sin(ang) * aspect_ratio * size, 0.0, 0.0);
                         gl_Position = gl_in[0].gl_Position + offset;
 
@@ -131,7 +132,7 @@ class MapLayer
         _gl.destroy();
 	}
 
-	void draw(Matrix)(ref Matrix mvp, float aspect_ratio)
+	void draw(Matrix)(ref Matrix mvp, float aspect_ratio, float pixel_width)
 	{
         {
     		_line_program.uniform("mvp_matrix").set(mvp);
@@ -147,6 +148,7 @@ class MapLayer
         {
             _point_program.uniform("mvp_matrix").set(mvp);
             _point_program.uniform("aspect_ratio").set(aspect_ratio);
+            _point_program.uniform("pixel_width").set(pixel_width);
             _point_program.use();
             scope(exit) _point_program.unuse();
 
