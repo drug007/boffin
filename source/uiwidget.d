@@ -27,12 +27,9 @@ class Camera
 
     void updateMatrices()
     {
-        auto aspect_ratio = _viewport.x / _viewport.y;
+        _aspect_ratio = _viewport.x / _viewport.y;
 
-        if(_viewport.x <= _viewport.y)
-            _projection = mat4f.orthographic(-size, +size,-size/aspect_ratio, +size/aspect_ratio, -size, +size);
-        else
-            _projection = mat4f.orthographic(-size*aspect_ratio,+size*aspect_ratio,-size, +size, -size, +size);
+        _projection = mat4f.orthographic(-size, +size,-size/_aspect_ratio, +size/_aspect_ratio, -size, +size);
 
         // Матрица камеры
         _view = mat4f.lookAt(
@@ -60,9 +57,16 @@ class Camera
         _viewport = v;
     }
 
+    @property aspectRatio() const
+    {
+        return _aspect_ratio;
+    }
+
 protected:
 
     vec2f _viewport;
+
+    float _aspect_ratio;
 
     mat4f _projection = void, 
           _view = void, 
@@ -238,7 +242,8 @@ class UiWidget : VerticalLayout
         _camera.updateMatrices();
 
         mat4f mvp = _camera.modelViewProjection;
-        _layer.draw(mvp);
+        auto aspect_ratio = _camera.aspectRatio;
+        _layer.draw(mvp, aspect_ratio);
     }
 
     ~this() {
