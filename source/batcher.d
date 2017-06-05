@@ -1,6 +1,6 @@
 module batcher;
 
-public import gfm.math: vec3f, vec4f;
+public import gfm.math: vec2f, vec3f, vec4f;
 import gfm.opengl: GLenum, GL_TRIANGLES, GL_POINTS, GL_LINE_STRIP, GLBuffer, 
 	OpenGL, GLVAO, GLProgram, VertexSpecification;
 
@@ -8,6 +8,7 @@ struct Vertex
 {
     vec3f position;
     vec4f color;
+    vec2f heading; // can't use float
 }
 
 struct VertexSlice
