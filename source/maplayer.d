@@ -96,11 +96,9 @@ class MapLayer
                 layout(location = 1) in vec4 color;
                 out vec4 vColor;
                 uniform mat4 mvp_matrix;
-                uniform float aspect_ratio;
                 void main()
                 {
                     gl_Position = mvp_matrix * vec4(position.xyz, 1.0);
-                    gl_PointSize = 3.0;                
                     vColor = color;
                 }
                 #endif
@@ -133,11 +131,10 @@ class MapLayer
         _gl.destroy();
 	}
 
-	void draw(M)(ref M mvp, float aspect_ratio)
+	void draw(Matrix)(ref Matrix mvp, float aspect_ratio)
 	{
         {
     		_line_program.uniform("mvp_matrix").set(mvp);
-            _line_program.uniform("aspect_ratio").set(aspect_ratio);
             _line_program.use();
             scope(exit) _line_program.unuse();
 
