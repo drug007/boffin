@@ -122,7 +122,6 @@ class UiWidget : VerticalLayout
                     layoutHeight: fill
                     TextWidget { text: "Data Visualizer"; textColor: "red"; fontSize: 150%; fontWeight: 800; fontFace: "Arial" }
                     VSpacer { layoutWeight: 30 }
-                    TextWidget { id: lblViewport; text: ""; backgroundColor: 0x80202020; textColor: 0xFFE0E0 }
                     TextWidget { id: lblPosition; text: ""; backgroundColor: 0x80202020; textColor: 0xFFE0E0 }
                   }
                 }
@@ -167,10 +166,7 @@ class UiWidget : VerticalLayout
             auto world_pos = _camera.projectWindowToPlane0(last_mouse_pos);// + _camera.position;
 
             import std.format : format;
-            childById("lblViewport").text = format("%4.0d\t%4.0d"d, 
-                _camera.viewport.x, _camera.viewport.y
-            );
-            childById("lblPosition").text = format("%4.0d\t%4.0d\t%4.0f\t%4.0f"d, 
+            childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f"d, 
                 last_mouse_pos.x, last_mouse_pos.y,
                 world_pos.x, world_pos.y
             );
