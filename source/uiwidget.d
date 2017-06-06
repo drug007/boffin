@@ -92,8 +92,19 @@ protected:
 
 class UiWidget : VerticalLayout
 {
-    import maplayer : MapLayer;
+    import std.experimental.logger : FileLogger;
     import gfm.math : vec2i, vec3f;
+    import gfm.opengl : OpenGL;
+    import maplayer : MapLayer;
+
+    private
+    {
+        MapLayer _layer;
+        Camera _camera;
+        vec2i _last_mouse_pos;
+        FileLogger _logger;
+        OpenGL _gl;
+    }
 
     this()
     {
@@ -136,14 +147,22 @@ class UiWidget : VerticalLayout
         _camera.halfWorldWidth = 30_000.0f;
         _camera.position = vec3f(30_000, 30_000, 0);
 
-        _layer = new MapLayer();
+        import gfm.opengl : GLVersion;
+        import std.stdio : stdout;
+        
+        _logger = new FileLogger(stdout);
+        _gl = new OpenGL(_logger);
+
+        // reload OpenGL now that a context exists
+        _gl.reload(GLVersion.GL32, GLVersion.HighestSupported);
+
+        // redirect OpenGL output to our Logger
+        _gl.redirectDebugOutput();
+
+        _layer = new MapLayer(_gl);
 
         focusable = true;
     }
-
-    MapLayer _layer;
-    Camera _camera;
-    vec2i last_mouse_pos;
 
     /// process key event, return true if event is processed.
     override bool onMouseEvent(MouseEvent event)
@@ -154,19 +173,19 @@ class UiWidget : VerticalLayout
         {
         	if (event.rbutton.isDown)
         	{
-                auto delta = vec2i(event.x, event.y) - last_mouse_pos;
+                auto delta = vec2i(event.x, event.y) - _last_mouse_pos;
                 auto scale = 2 * _camera.halfWorldWidth / _camera.viewport.x;
                 _camera.position += vec3f(-delta.x, delta.y, 0) * scale;
         	}
         	
-        	last_mouse_pos = vec2i(event.x, event.y);
+        	_last_mouse_pos = vec2i(event.x, event.y);
 
             _camera.viewport = vec2i(width, height);
-            auto world_pos = _camera.projectWindowToPlane0(last_mouse_pos);// + _camera.position;
+            auto world_pos = _camera.projectWindowToPlane0(_last_mouse_pos);// + _camera.position;
 
             import std.format : format;
             childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f"d, 
-                last_mouse_pos.x, last_mouse_pos.y,
+                _last_mouse_pos.x, _last_mouse_pos.y,
                 world_pos.x, world_pos.y
             );
         }

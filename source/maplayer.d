@@ -2,23 +2,12 @@ module maplayer;
 
 class MapLayer
 {
-	import std.experimental.logger : NullLogger, FileLogger;
-	import gfm.opengl : OpenGL, GLProgram;
+	import gfm.opengl : OpenGL, GLProgram, VertexSpecification;
 	import batcher : GLProvider, Vertex, VertexProvider, VertexSlice;
 
-	this()
+	this(OpenGL gl)
 	{
-		import gfm.opengl;
-
-		import std.stdio : stdout;
-        _logger = new FileLogger(stdout);
-        _gl = new OpenGL(_logger);
-
-        // reload OpenGL now that a context exists
-        _gl.reload(GLVersion.GL32, GLVersion.HighestSupported);
-
-        // redirect OpenGL output to our Logger
-        _gl.redirectDebugOutput();
+		_gl = gl;
 
         {
             const program_source =
@@ -135,16 +124,14 @@ class MapLayer
 
         import data : v12_89;
 
-        glprovider = new GLProvider(_gl, new VertexSpecification!Vertex(_point_program), v12_89);
+        _glprovider = new GLProvider(_gl, new VertexSpecification!Vertex(_point_program), v12_89);
 	}
 
 	~this()
 	{
-		glprovider.destroy();
+		_glprovider.destroy();
         _point_program.destroy();
         _line_program.destroy();
-
-        _gl.destroy();
 	}
 
 	void draw(Matrix)(ref Matrix mvp, float aspect_ratio, float pixel_width)
@@ -155,7 +142,7 @@ class MapLayer
             scope(exit) _line_program.unuse();
 
             import data : vs12_89_line;
-            glprovider.drawVertices(vs12_89_line);
+            _glprovider.drawVertices(vs12_89_line);
 
             _gl.runtimeCheck();
         }
@@ -168,17 +155,14 @@ class MapLayer
             scope(exit) _point_program.unuse();
 
             import data : vs12_89_point;
-            glprovider.drawVertices(vs12_89_point);
+            _glprovider.drawVertices(vs12_89_point);
 
             _gl.runtimeCheck();
         }
     }
 
 private:
-	FileLogger _logger;
-    OpenGL _gl;
+	OpenGL _gl;
     GLProgram _line_program, _point_program;
-    GLProvider glprovider;
-    VertexProvider vprovider;
-    Vertex[] vertices;
+    GLProvider _glprovider;
 }
