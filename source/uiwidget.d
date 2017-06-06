@@ -10,11 +10,11 @@ import dlangui.graphics.scene.scene3d : Scene3d;
 
 class Camera
 {
-    import gfm.math : mat4f, vec3f, vec2f;
+    import gfm.math : mat4f, vec3f, vec2i;
 
-    this(float width, float height)
+    this(int width, int height)
     {
-        _viewport = vec2f(width, height);
+        viewport = vec2i(width, height);
         size = 1.0;
         _model = mat4f.identity;
         position = vec3f(0, 0, 0);
@@ -27,8 +27,6 @@ class Camera
 
     void updateMatrices()
     {
-        _aspect_ratio = _viewport.x / _viewport.y;
-
         _projection = mat4f.orthographic(-size, +size,-size/_aspect_ratio, +size/_aspect_ratio, -size, +size);
 
         // Матрица камеры
@@ -52,8 +50,9 @@ class Camera
         return _viewport;
     }
 
-    @property viewport(vec2f v)
+    @property viewport(vec2i v)
     {
+        _aspect_ratio = v.x / cast(float) v.y;
         _viewport = v;
     }
 
@@ -64,7 +63,7 @@ class Camera
 
 protected:
 
-    vec2f _viewport;
+    vec2i _viewport;
 
     float _aspect_ratio;
 
@@ -229,7 +228,7 @@ class UiWidget : VerticalLayout
     private void doDraw(Rect windowRect, Rect rc) {
     	
     	import dlangui.graphics.glsupport;
-        import gfm.math : mat4f, vec2f;
+        import gfm.math : mat4f, vec2i;
 
     	const int MAX_VIEW_DISTANCE = 120;
 
@@ -238,7 +237,7 @@ class UiWidget : VerticalLayout
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        _camera.viewport(vec2f(rc.width, rc.height));
+        _camera.viewport(vec2i(rc.width, rc.height));
         _camera.updateMatrices();
 
         mat4f mvp = _camera.modelViewProjection;
