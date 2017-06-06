@@ -153,11 +153,11 @@ class UiWidget : VerticalLayout
 
         if (event.action == MouseAction.Move)
         {
-        	auto delta = vec2i(event.x, event.y) - last_mouse_pos;
-        	
         	if (event.rbutton.isDown)
         	{
-        		_camera.position += vec3f(-delta.x, delta.y, 0) * _camera.halfWorldWidth / 1000.0f;
+                auto delta = vec2i(event.x, event.y) - last_mouse_pos;
+                auto scale = 2 * _camera.halfWorldWidth / _camera.viewport.x;
+                _camera.position += vec3f(-delta.x, delta.y, 0) * scale;
         	}
         	
         	last_mouse_pos = vec2i(event.x, event.y);
