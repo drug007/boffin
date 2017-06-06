@@ -15,7 +15,7 @@ class Camera
     this(int width, int height)
     {
         viewport = vec2i(width, height);
-        worldWidth = 1.0;
+        halfWorldWidth = 1.0;
         _model = mat4f.identity;
         position = vec3f(0, 0, 0);
 
@@ -23,21 +23,39 @@ class Camera
     }
 
     vec3f position;
-    float worldWidth;
+    float halfWorldWidth;
 
     void updateMatrices()
     {
-        _projection = mat4f.orthographic(-worldWidth, +worldWidth,-worldWidth/_aspect_ratio, +worldWidth/_aspect_ratio, -worldWidth, +worldWidth);
+        _projection = mat4f.orthographic(-halfWorldWidth, +halfWorldWidth,-halfWorldWidth/_aspect_ratio, +halfWorldWidth/_aspect_ratio, -halfWorldWidth, +halfWorldWidth);
 
         // Матрица камеры
         _view = mat4f.lookAt(
-            vec3f(position.x, position.y, +worldWidth), // Камера находится в мировых координатах
-            vec3f(position.x, position.y, -worldWidth), // И направлена в начало координат
+            vec3f(position.x, position.y, +halfWorldWidth), // Камера находится в мировых координатах
+            vec3f(position.x, position.y, -halfWorldWidth), // И направлена в начало координат
             vec3f(0, 1, 0)  // "Голова" находится сверху
         );
 
         // Итоговая матрица ModelViewProjection, которая является результатом перемножения наших трех матриц
         _mvp_matrix = _projection * _view * _model;
+    }
+
+    /// Проекция оконной координаты в точку на плоскости z = 0
+    private vec3f projectWindowToPlane0(in vec2i winCoords)
+    {
+        assert(winCoords.x >= 0);
+        assert(winCoords.x <= _viewport.x);
+
+        assert(winCoords.y >= 0);
+        assert(winCoords.y <= _viewport.y);
+
+        auto scale_x = 2 * halfWorldWidth / _viewport.x;
+        auto scale_y = 2 * halfWorldWidth / _viewport.y / _aspect_ratio;
+
+        auto x = winCoords.x * scale_x + position.x - halfWorldWidth;
+        auto y = (_viewport.y - winCoords.y) * scale_y + position.y - halfWorldWidth / _aspect_ratio;
+
+        return vec3f(x, y, 0.0f);
     }
 
     @property modelViewProjection() const
@@ -104,6 +122,7 @@ class UiWidget : VerticalLayout
                     layoutHeight: fill
                     TextWidget { text: "Data Visualizer"; textColor: "red"; fontSize: 150%; fontWeight: 800; fontFace: "Arial" }
                     VSpacer { layoutWeight: 30 }
+                    TextWidget { id: lblViewport; text: ""; backgroundColor: 0x80202020; textColor: 0xFFE0E0 }
                     TextWidget { id: lblPosition; text: ""; backgroundColor: 0x80202020; textColor: 0xFFE0E0 }
                   }
                 }
@@ -115,8 +134,8 @@ class UiWidget : VerticalLayout
         // assign OpenGL drawable to child widget background
         childById("glView").backgroundDrawable = DrawableRef(new OpenGLDrawable(&doDraw));
 
-        _camera = new Camera(100, 100);
-        _camera.worldWidth = 30_000.0f;
+        _camera = new Camera(width, height);
+        _camera.halfWorldWidth = 30_000.0f;
         _camera.position = vec3f(30_000, 30_000, 0);
 
         _layer = new MapLayer();
@@ -139,17 +158,29 @@ class UiWidget : VerticalLayout
         	
         	if (event.rbutton.isDown)
         	{
-        		_camera.position += vec3f(-delta.x, delta.y, 0) * _camera.worldWidth / 1000.0f;
+        		_camera.position += vec3f(-delta.x, delta.y, 0) * _camera.halfWorldWidth / 1000.0f;
         	}
         	
         	last_mouse_pos = vec2i(event.x, event.y);
+
+            _camera.viewport = vec2i(width, height);
+            auto world_pos = _camera.projectWindowToPlane0(last_mouse_pos);// + _camera.position;
+
+            import std.format : format;
+            childById("lblViewport").text = format("%4.0d\t%4.0d"d, 
+                _camera.viewport.x, _camera.viewport.y
+            );
+            childById("lblPosition").text = format("%4.0d\t%4.0d\t%4.0f\t%4.0f"d, 
+                last_mouse_pos.x, last_mouse_pos.y,
+                world_pos.x, world_pos.y
+            );
         }
         else if (event.action == MouseAction.Wheel)
         {
             if (event.wheelDelta)
             {
             	enum delta = 0.05;
-            	_camera.worldWidth *= (1 + delta*event.wheelDelta);
+            	_camera.halfWorldWidth *= (1 + delta*event.wheelDelta);
             }
         }
         return true;
