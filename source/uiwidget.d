@@ -15,7 +15,7 @@ class Camera
     this(int width, int height)
     {
         viewport = vec2i(width, height);
-        size = 1.0;
+        worldWidth = 1.0;
         _model = mat4f.identity;
         position = vec3f(0, 0, 0);
 
@@ -23,16 +23,16 @@ class Camera
     }
 
     vec3f position;
-    float size;
+    float worldWidth;
 
     void updateMatrices()
     {
-        _projection = mat4f.orthographic(-size, +size,-size/_aspect_ratio, +size/_aspect_ratio, -size, +size);
+        _projection = mat4f.orthographic(-worldWidth, +worldWidth,-worldWidth/_aspect_ratio, +worldWidth/_aspect_ratio, -worldWidth, +worldWidth);
 
         // Матрица камеры
         _view = mat4f.lookAt(
-            vec3f(position.x, position.y, +size), // Камера находится в мировых координатах
-            vec3f(position.x, position.y, -size), // И направлена в начало координат
+            vec3f(position.x, position.y, +worldWidth), // Камера находится в мировых координатах
+            vec3f(position.x, position.y, -worldWidth), // И направлена в начало координат
             vec3f(0, 1, 0)  // "Голова" находится сверху
         );
 
@@ -116,7 +116,7 @@ class UiWidget : VerticalLayout
         childById("glView").backgroundDrawable = DrawableRef(new OpenGLDrawable(&doDraw));
 
         _camera = new Camera(100, 100);
-        _camera.size = 30_000.0f;
+        _camera.worldWidth = 30_000.0f;
         _camera.position = vec3f(30_000, 30_000, 0);
 
         _layer = new MapLayer();
@@ -141,7 +141,7 @@ class UiWidget : VerticalLayout
         	
         	if (event.rbutton.isDown)
         	{
-        		_camera.position += vec3f(-deltaX, deltaY, 0) * _camera.size / 1000.0f;
+        		_camera.position += vec3f(-deltaX, deltaY, 0) * _camera.worldWidth / 1000.0f;
         	}
         	
         	lastMouseX = event.x;
@@ -152,7 +152,7 @@ class UiWidget : VerticalLayout
             if (event.wheelDelta)
             {
             	enum delta = 0.05;
-            	_camera.size *= (1 + delta*event.wheelDelta);
+            	_camera.worldWidth *= (1 + delta*event.wheelDelta);
             }
         }
         return true;
