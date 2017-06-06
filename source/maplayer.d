@@ -20,8 +20,6 @@ class MapLayer
         // redirect OpenGL output to our Logger
         _gl.redirectDebugOutput();
 
-        glEnable( GL_PROGRAM_POINT_SIZE );
-
         {
             const program_source =
                 q{#version 330 core

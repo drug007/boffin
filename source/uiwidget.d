@@ -6,7 +6,6 @@ import dlangui.core.types : Rect, FILL_PARENT;
 import dlangui.widgets.styles : Align;
 import dlangui.core.logger : Log;
 import dlangui.graphics.resources : DrawableRef, OpenGLDrawable;
-import dlangui.graphics.scene.scene3d : Scene3d;
 
 class Camera
 {
@@ -241,20 +240,11 @@ class UiWidget : VerticalLayout
         return false;
     }
 
-    /// returns true is widget is being animated - need to call animate() and redraw
-    @property override bool animating() { return true; }
-
-    /// animates window; interval is time left from previous draw, in hnsecs (1/10000000 of second)
-    override void animate(long interval) {
-    }
-
     /// this is OpenGLDrawableDelegate implementation
     private void doDraw(Rect windowRect, Rect rc) {
     	
     	import dlangui.graphics.glsupport;
         import gfm.math : mat4f, vec2i;
-
-    	const int MAX_VIEW_DISTANCE = 120;
 
     	// clear the whole window
         glViewport(0, 0, rc.width, rc.height);
