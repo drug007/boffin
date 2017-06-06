@@ -15,7 +15,7 @@ class MapLayer
         _gl = new OpenGL(_logger);
 
         // reload OpenGL now that a context exists
-        _gl.reload();
+        _gl.reload(GLVersion.GL32, GLVersion.HighestSupported);
 
         // redirect OpenGL output to our Logger
         _gl.redirectDebugOutput();
