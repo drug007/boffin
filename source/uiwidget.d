@@ -76,7 +76,7 @@ protected:
 class UiWidget : VerticalLayout
 {
     import maplayer : MapLayer;
-    import gfm.math : vec3f;
+    import gfm.math : vec2i, vec3f;
 
     this()
     {
@@ -126,8 +126,7 @@ class UiWidget : VerticalLayout
 
     MapLayer _layer;
     Camera _camera;
-    int lastMouseX;
-    int lastMouseY;
+    vec2i last_mouse_pos;
 
     /// process key event, return true if event is processed.
     override bool onMouseEvent(MouseEvent event)
@@ -136,16 +135,14 @@ class UiWidget : VerticalLayout
 
         if (event.action == MouseAction.Move)
         {
-        	int deltaX = event.x - lastMouseX;
-            int deltaY = event.y - lastMouseY;
+        	auto delta = vec2i(event.x, event.y) - last_mouse_pos;
         	
         	if (event.rbutton.isDown)
         	{
-        		_camera.position += vec3f(-deltaX, deltaY, 0) * _camera.worldWidth / 1000.0f;
+        		_camera.position += vec3f(-delta.x, delta.y, 0) * _camera.worldWidth / 1000.0f;
         	}
         	
-        	lastMouseX = event.x;
-            lastMouseY = event.y;
+        	last_mouse_pos = vec2i(event.x, event.y);
         }
         else if (event.action == MouseAction.Wheel)
         {
