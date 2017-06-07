@@ -1,4 +1,4 @@
-module maplayer;
+module track_layer;
 
 struct Vertex
 {
@@ -8,7 +8,7 @@ struct Vertex
     vec2f heading; // can't use float
 }
 
-class MapLayer
+class TrackLayer
 {
 	import gfm.opengl : OpenGL, GLProgram, VertexSpecification;
 	import batcher : GLProvider, VertexProvider, VertexSlice;

@@ -1,7 +1,7 @@
 module data;
 
 import batcher : vec2f, vec3f, vec4f, VertexSlice;
-import maplayer : Vertex;
+import track_layer : Vertex;
 
 struct Data
 {

@@ -12,12 +12,12 @@ class UiWidget : VerticalLayout
     import std.experimental.logger : FileLogger;
     import gfm.math : vec2i, vec3f;
     import gfm.opengl : OpenGL;
-    import maplayer : MapLayer;
+    import track_layer : TrackLayer;
     import camera : Camera;
 
     private
     {
-        MapLayer _layer;
+        TrackLayer _track_layer;
         Camera _camera;
         vec2i _last_mouse_pos;
         FileLogger _logger;
@@ -77,7 +77,7 @@ class UiWidget : VerticalLayout
         // redirect OpenGL output to our Logger
         _gl.redirectDebugOutput();
 
-        _layer = new MapLayer(_gl);
+        _track_layer = new TrackLayer(_gl);
 
         focusable = true;
     }
@@ -194,11 +194,11 @@ class UiWidget : VerticalLayout
 
         mat4f mvp = _camera.modelViewProjection;
         auto aspect_ratio = _camera.aspectRatio;
-        _layer.draw(mvp, aspect_ratio, rc.width);
+        _track_layer.draw(mvp, aspect_ratio, rc.width);
     }
 
     ~this() {
     	destroy(_camera);
-        destroy(_layer);
+        destroy(_track_layer);
     }
 }
