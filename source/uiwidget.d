@@ -77,7 +77,9 @@ class UiWidget : VerticalLayout
         // redirect OpenGL output to our Logger
         _gl.redirectDebugOutput();
 
-        _track_layer = new TrackLayer(_gl);
+        import data : v12_89;
+
+        _track_layer = new TrackLayer(_gl, v12_89);
 
         focusable = true;
     }

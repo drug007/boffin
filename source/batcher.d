@@ -101,8 +101,11 @@ private:
 
 class GLProvider(Vertex)
 {
-    this(OpenGL gl, VertexSpecification!Vertex vertex_specification, Vertex[] vertices)
+    this(R)(OpenGL gl, VertexSpecification!Vertex vertex_specification, R vertices)
     {
+        import std.range : ElementType;
+        static assert(is(ElementType!R == Vertex));
+        
     	import std.array : array;
     	import std.algorithm : map;
     	import std.range : iota;
@@ -112,10 +115,10 @@ class GLProvider(Vertex)
 
     	assert(vertices.length);
 
-        auto indices = iota(0, vertices.length).map!"cast(uint)a".array;
+        auto indices = iota(0, vertices.length).map!"cast(uint)a";
 
-        _vbo = new GLBuffer(gl, GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices);
-        _ibo = new GLBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices);
+        _vbo = new GLBuffer(gl, GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices.array);
+        _ibo = new GLBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices.array);
 
         // Create an OpenGL vertex description from the Vertex structure.
         _vert_spec = vertex_specification;

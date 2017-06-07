@@ -14,8 +14,11 @@ class TrackLayer
     import gfm.math : vec2i;
 	import batcher : GLProvider;
 
-	this(OpenGL gl)
+	this(R)(OpenGL gl, R vertices)
 	{
+        import std.range : ElementType;
+        static assert(is(ElementType!R == Vertex));
+        
 		_gl = gl;
 
         {
@@ -130,9 +133,7 @@ class TrackLayer
             _line_program = new GLProgram(_gl, program_source);
         }
 
-        import data : v12_89;
-
-        _glprovider = new GLProvider!Vertex(_gl, new VertexSpecification!Vertex(_point_program), v12_89);
+        _glprovider = new GLProvider!Vertex(_gl, new VertexSpecification!Vertex(_point_program), vertices);
 	}
 
 	~this()
