@@ -8,13 +8,13 @@ mixin APP_ENTRY_POINT;
 extern (C) int UIAppMain(string[] args)
 {
 
-    // create window
-    Window window = Platform.instance.createWindow("Boffin", null, WindowFlag.Resizable, 600, 500);
-    window.mainWidget = new UiWidget();
+	// create window
+	Window window = Platform.instance.createWindow("Boffin", null, WindowFlag.Resizable, 600, 500);
+	window.mainWidget = new UiWidget();
 
-    // show window
-    window.show();
+	// show window
+	window.show();
 
-    // run message loop
-    return Platform.instance.enterMessageLoop();
+	// run message loop
+	return Platform.instance.enterMessageLoop();
 }
