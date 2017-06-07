@@ -112,10 +112,10 @@ class GLProvider(Vertex)
 
     	assert(vertices.length);
 
-        _indices = iota(0, vertices.length).map!"cast(uint)a".array;
+        auto indices = iota(0, vertices.length).map!"cast(uint)a".array;
 
         _vbo = new GLBuffer(gl, GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices);
-        _ibo = new GLBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, _indices);
+        _ibo = new GLBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices);
 
         // Create an OpenGL vertex description from the Vertex structure.
         _vert_spec = vertex_specification;
@@ -170,7 +170,6 @@ class GLProvider(Vertex)
         _vao_points.unbind();
     }
 
-    uint[]        _indices;
     GLBuffer      _vbo, _ibo;
     GLVAO         _vao_points;
     VertexSpecification!Vertex _vert_spec;
