@@ -13,15 +13,17 @@ class UiWidget : VerticalLayout
 	import gfm.math : vec2i, vec3f;
 	import gfm.opengl : OpenGL;
 	import track_layer : TrackLayer;
+	import map_layer : MapLayer;
 	import camera : Camera;
 
 	private
 	{
 		TrackLayer _track_layer;
-		Camera _camera;
-		vec2i _last_mouse_pos;
+		MapLayer   _map_layer;
+		Camera     _camera;
+		vec2i      _last_mouse_pos;
 		FileLogger _logger;
-		OpenGL _gl;
+		OpenGL     _gl;
 	}
 
 	this()
@@ -80,6 +82,10 @@ class UiWidget : VerticalLayout
 		import track_layer : v12_89;
 
 		_track_layer = new TrackLayer(_gl, v12_89);
+
+		import map_layer : symbolv;
+
+		_map_layer = new MapLayer(_gl, symbolv);
 
 		focusable = true;
 	}
@@ -196,11 +202,13 @@ class UiWidget : VerticalLayout
 
 		mat4f mvp = _camera.modelViewProjection;
 		auto aspect_ratio = _camera.aspectRatio;
+		_map_layer.draw(mvp, _camera.viewport);
 		_track_layer.draw(mvp, _camera.viewport);
 	}
 
 	~this() {
 		destroy(_camera);
 		destroy(_track_layer);
+		destroy(_map_layer);
 	}
 }
