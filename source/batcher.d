@@ -67,20 +67,13 @@ class VertexProvider
 {
     uint no;
 
-	this(uint no, Vertex[] vertices, VertexSlice[] slices, bool visible = true)
+	this(uint no, VertexSlice[] slices, bool visible = true)
 	{
-        assert(vertices.length);
         assert(slices.length);
         this.no      = no;
-		_vertices    = vertices;
 		_slices      = slices; 
 		_curr_slices = slices.dup;
         _visible     = visible;
-	}
-
-	@property vertices()
-	{
-		return _vertices;
 	}
 
 	@property slices()
@@ -110,7 +103,6 @@ class VertexProvider
 
 private:
 	VertexSlice[] _slices, _curr_slices;
-	Vertex[]      _vertices;
     bool          _visible;
 }
 
