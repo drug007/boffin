@@ -195,6 +195,7 @@ class UiWidget : VerticalLayout
             {
             	enum delta = 0.05;
             	_camera.halfWorldWidth *= (1 + delta*event.wheelDelta);
+                invalidate;
             }
         }
         return true;
