@@ -194,7 +194,7 @@ class UiWidget : VerticalLayout
 
         mat4f mvp = _camera.modelViewProjection;
         auto aspect_ratio = _camera.aspectRatio;
-        _track_layer.draw(mvp, aspect_ratio, rc.width);
+        _track_layer.draw(mvp, _camera.viewport);
     }
 
     ~this() {

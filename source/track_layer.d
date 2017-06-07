@@ -11,7 +11,8 @@ struct Vertex
 class TrackLayer
 {
 	import gfm.opengl : OpenGL, GLProgram, VertexSpecification;
-	import batcher : GLProvider, VertexProvider, VertexSlice;
+    import gfm.math : vec2i;
+	import batcher : GLProvider;
 
 	this(OpenGL gl)
 	{
@@ -28,7 +29,6 @@ class TrackLayer
                 out vec4 vColor;
                 out float vHeading;
                 uniform mat4 mvp_matrix;
-                uniform float aspect_ratio;
                 void main()
                 {
                     gl_Position = mvp_matrix * vec4(position.xyz, 1.0);
@@ -46,8 +46,7 @@ class TrackLayer
                 in float vHeading[];
                 out vec4 fColor;  // Output to fragment shader
 
-                uniform float aspect_ratio;
-                uniform float pixel_width;
+                uniform ivec2 resolution;
 
                 const float PI = 3.1415926;
 
@@ -56,8 +55,9 @@ class TrackLayer
                     fColor = vColor[0]; // Point has only one vertex
                     float fHeading = vHeading[0];
 
-                    float size = 8 / pixel_width;
+                    float size = 8.0 / resolution.x;
                     float heading_length = 4 * size;
+                    float aspect_ratio = resolution.x / float(resolution.y);
                     const float sides = 16;
 
                     gl_Position = gl_in[0].gl_Position;
@@ -108,7 +108,7 @@ class TrackLayer
                 layout(location = 2) in float heading;
                 out vec4 vColor;
                 uniform mat4 mvp_matrix;
-                uniform float aspect_ratio;
+                uniform ivec2 resolution;
                 void main()
                 {
                     gl_Position = mvp_matrix * vec4(position.xyz, 1.0);
@@ -142,7 +142,7 @@ class TrackLayer
         _line_program.destroy();
 	}
 
-	void draw(Matrix)(ref Matrix mvp, float aspect_ratio, float pixel_width)
+	void draw(Matrix)(ref Matrix mvp, vec2i resolution)
 	{
         {
     		_line_program.uniform("mvp_matrix").set(mvp);
@@ -157,8 +157,7 @@ class TrackLayer
 
         {
             _point_program.uniform("mvp_matrix").set(mvp);
-            _point_program.uniform("aspect_ratio").set(aspect_ratio);
-            _point_program.uniform("pixel_width").set(pixel_width);
+            _point_program.uniform("resolution").set(resolution);
             _point_program.use();
             scope(exit) _point_program.unuse();
 
