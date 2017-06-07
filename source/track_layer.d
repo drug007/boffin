@@ -8,6 +8,51 @@ struct Vertex
     vec2f heading; // can't use float
 }
 
+import std.math : PI;
+import gfm.math : vec2f, vec3f, vec4f;
+import batcher : VertexSlice;
+
+auto v12_89 = [
+    Vertex(vec3f(2592.73,  29898.1, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(  0 * PI/180.0, 0)), 
+    Vertex(vec3f(4718.28,  30201.3, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f( 30 * PI/180.0, 0)), 
+    Vertex(vec3f(7217.78,  31579.6, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f( 60 * PI/180.0, 0)), 
+    Vertex(vec3f(8803.98,  31867.5, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f( 90 * PI/180.0, 0)), 
+    Vertex(vec3f(10319.9,  32846.7, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(120 * PI/180.0, 0)), 
+    Vertex(vec3f(12101.3,  33290.6, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(150 * PI/180.0, 0)), 
+    Vertex(vec3f(  15099,    34126, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(180 * PI/180.0, 0)), 
+    Vertex(vec3f(15750.3,  34418.7, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(  18450,  35493.3, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(20338.8,  36117.9, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(22569.5,    36753, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(23030.3,  37399.1, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(26894.2,  38076.8, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(27829.2,  38624.7, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(30832.9,  39502.2, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(31785.5,  39910.8, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(34543.4,  39246.4, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(36346.9,  38694.4, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(38273.6,    38011, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(39485.8,    37357, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(  42242,  36425.5, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(43082.6,  36391.4, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(47068.2,  34976.8, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(48361.4,  34596.8, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(50459.5,  34002.1, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(53024.4,  33244.2, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(54822.9,  32615.2, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(56916.5,    31945, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)), 
+    Vertex(vec3f(59601.7,  31186.4, 0), vec4f(1.0, 1.0, 1.0, 1.0), vec2f(1.0, 0)),
+];
+
+auto vs12_89_line = [
+    VertexSlice(VertexSlice.Kind.LineStrip, 0, 28),
+];
+
+auto vs12_89_point = [
+    VertexSlice(VertexSlice.Kind.Points, 0, 28),
+];
+
+
 class TrackLayer
 {
 	import gfm.opengl : OpenGL, GLProgram, VertexSpecification;
@@ -150,7 +195,6 @@ class TrackLayer
             _line_program.use();
             scope(exit) _line_program.unuse();
 
-            import data : vs12_89_line;
             _glprovider.drawVertices(vs12_89_line);
 
             _gl.runtimeCheck();
@@ -162,7 +206,6 @@ class TrackLayer
             _point_program.use();
             scope(exit) _point_program.unuse();
 
-            import data : vs12_89_point;
             _glprovider.drawVertices(vs12_89_point);
 
             _gl.runtimeCheck();
