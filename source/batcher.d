@@ -4,13 +4,6 @@ public import gfm.math: vec2f, vec3f, vec4f;
 import gfm.opengl: GLenum, GL_TRIANGLES, GL_POINTS, GL_LINE_STRIP, GLBuffer, 
 	OpenGL, GLVAO, GLProgram, VertexSpecification;
 
-struct Vertex
-{
-    vec3f position;
-    vec4f color;
-    vec2f heading; // can't use float
-}
-
 struct VertexSlice
 {
     private GLenum _kind;
@@ -106,7 +99,7 @@ private:
     bool          _visible;
 }
 
-class GLProvider
+class GLProvider(Vertex)
 {
     this(OpenGL gl, VertexSpecification!Vertex vertex_specification, Vertex[] vertices)
     {

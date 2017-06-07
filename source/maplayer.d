@@ -1,9 +1,17 @@
 module maplayer;
 
+struct Vertex
+{
+    import gfm.math : vec2f, vec3f, vec4f;
+    vec3f position;
+    vec4f color;
+    vec2f heading; // can't use float
+}
+
 class MapLayer
 {
 	import gfm.opengl : OpenGL, GLProgram, VertexSpecification;
-	import batcher : GLProvider, Vertex, VertexProvider, VertexSlice;
+	import batcher : GLProvider, VertexProvider, VertexSlice;
 
 	this(OpenGL gl)
 	{
@@ -124,7 +132,7 @@ class MapLayer
 
         import data : v12_89;
 
-        _glprovider = new GLProvider(_gl, new VertexSpecification!Vertex(_point_program), v12_89);
+        _glprovider = new GLProvider!Vertex(_gl, new VertexSpecification!Vertex(_point_program), v12_89);
 	}
 
 	~this()
@@ -164,5 +172,5 @@ class MapLayer
 private:
 	OpenGL _gl;
     GLProgram _line_program, _point_program;
-    GLProvider _glprovider;
+    GLProvider!Vertex _glprovider;
 }

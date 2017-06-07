@@ -1,6 +1,7 @@
 module data;
 
-import batcher : Vertex, vec2f, vec3f, vec4f, VertexSlice;
+import batcher : vec2f, vec3f, vec4f, VertexSlice;
+import maplayer : Vertex;
 
 struct Data
 {
