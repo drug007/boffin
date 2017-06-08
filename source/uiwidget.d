@@ -69,7 +69,7 @@ class UiWidget : VerticalLayout
 
 		import gfm.opengl : GLVersion;
 		import std.stdio : stdout;
-		
+
 		_logger = new FileLogger(stdout);
 		_gl = new OpenGL(_logger);
 
@@ -103,14 +103,14 @@ class UiWidget : VerticalLayout
 				auto scale = 2 * _camera.halfWorldWidth / _camera.viewport.x;
 				_camera.position += vec3f(-delta.x, delta.y, 0) * scale;
 			}
-			
+
 			_last_mouse_pos = vec2i(event.x, event.y);
 
 			_camera.viewport = vec2i(width, height);
 			auto world_pos = _camera.projectWindowToPlane0(_last_mouse_pos);// + _camera.position;
 
 			import std.format : format;
-			childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f"d, 
+			childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f"d,
 				_last_mouse_pos.x, _last_mouse_pos.y,
 				world_pos.x, world_pos.y
 			);
@@ -188,7 +188,7 @@ class UiWidget : VerticalLayout
 
 	/// this is OpenGLDrawableDelegate implementation
 	private void doDraw(Rect windowRect, Rect rc) {
-		
+
 		import dlangui.graphics.glsupport;
 		import gfm.math : mat4f, vec2i;
 
