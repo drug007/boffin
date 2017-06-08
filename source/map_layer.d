@@ -14,12 +14,19 @@ auto symbolv = [
 	Vertex(vec3f(2500.0,  25000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
 	Vertex(vec3f(2500.0,  35000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
 	Vertex(vec3f(5000.0,  35000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
-	Vertex(vec3f(5000.0,  25000.5, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
+	Vertex(vec3f(5000.0,  25000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
 	Vertex(vec3f(2500.0,  25000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
+
+	Vertex(vec3f(7500.0,  23000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
+	Vertex(vec3f(7500.0,  33000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
+	Vertex(vec3f(9000.0,  33000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
+	Vertex(vec3f(9000.0,  23000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
+	Vertex(vec3f(7500.0,  23000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
 ];
 
 auto symbols = [
 	VertexSlice(VertexSlice.Kind.LineStrip, 0, 5),
+	VertexSlice(VertexSlice.Kind.LineStrip, 5, 5),
 ];
 
 
