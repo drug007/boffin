@@ -1,0 +1,23 @@
+{
+	"folders":
+	[
+		{
+			"path": "./"
+		}
+	],
+    "build_systems":
+    [
+        {
+            "name": "Build",
+            "cmd": ["dub", "build"]
+        },
+        {
+            "name": "Run",
+            "cmd": ["dub", "run"]
+        },
+        {
+            "name": "debug",
+            // "cmd": ["gdb", "--interpreter=mi", "--args",  "./${project_base_name}"]
+        }
+    ]
+}

@@ -6,3 +6,4 @@ __dummy.html
 __test__*__
 /boffin
 /boffin-test-library
+*.sublime-workspace
