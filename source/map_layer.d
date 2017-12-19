@@ -8,7 +8,7 @@ struct Vertex
 }
 
 import gfm.math : vec3f, vec4f;
-import batcher : VertexSlice;
+import vertex_data : VertexSlice;
 import camera : Camera;
 
 auto symbolv = [
@@ -35,7 +35,7 @@ class MapLayer
 {
 	import gfm.opengl : OpenGL, GLProgram, VertexSpecification;
 	import gfm.math : vec2i;
-	import batcher : GLProvider;
+	import vertex_data : VertexData;
 
 	this(R)(OpenGL gl, R vertices)
 	{
@@ -74,7 +74,7 @@ class MapLayer
 			_line_program = new GLProgram(_gl, program_source);
 		}
 
-		_glprovider = new GLProvider!Vertex(_gl, new VertexSpecification!Vertex(_line_program), vertices);
+		_glprovider = new VertexData!Vertex(_gl, new VertexSpecification!Vertex(_line_program), vertices);
 	}
 
 	~this()
@@ -112,5 +112,5 @@ class MapLayer
 private:
 	OpenGL _gl;
 	GLProgram _line_program;
-	GLProvider!Vertex _glprovider;
+	VertexData!Vertex _glprovider;
 }

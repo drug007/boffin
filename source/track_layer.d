@@ -10,7 +10,7 @@ struct Vertex
 
 import std.math : PI;
 import gfm.math : vec3f, vec4f;
-import batcher : VertexSlice;
+import vertex_data : VertexSlice;
 import camera : Camera;
 
 auto v12_89 = [
@@ -58,7 +58,7 @@ class TrackLayer
 {
 	import gfm.opengl : OpenGL, GLProgram, VertexSpecification;
 	import gfm.math : vec2i;
-	import batcher : GLProvider;
+	import vertex_data : VertexData;
 
 	this(R)(OpenGL gl, R vertices)
 	{
@@ -179,7 +179,7 @@ class TrackLayer
 			_line_program = new GLProgram(_gl, program_source);
 		}
 
-		_glprovider = new GLProvider!Vertex(_gl, new VertexSpecification!Vertex(_point_program), vertices);
+		_glprovider = new VertexData!Vertex(_gl, new VertexSpecification!Vertex(_point_program), vertices);
 	}
 
 	~this()
@@ -242,5 +242,5 @@ class TrackLayer
 private:
 	OpenGL _gl;
 	GLProgram _line_program, _point_program;
-	GLProvider!Vertex _glprovider;
+	VertexData!Vertex _glprovider;
 }

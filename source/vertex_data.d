@@ -1,4 +1,4 @@
-module batcher;
+module vertex_data;
 
 public import gfm.math: vec2f, vec3f, vec4f;
 import gfm.opengl: GLenum, GL_TRIANGLES, GL_POINTS, GL_LINE_STRIP, GLBuffer, 
@@ -56,50 +56,7 @@ struct VertexSlice
 	}
 }
 
-class VertexProvider
-{
-	uint no;
-
-	this(uint no, VertexSlice[] slices, bool visible = true)
-	{
-		assert(slices.length);
-		this.no      = no;
-		_slices      = slices; 
-		_curr_slices = slices.dup;
-		_visible     = visible;
-	}
-
-	@property slices()
-	{
-		return _slices;
-	}
-
-	@property currSlices()
-	{
-		return _curr_slices;
-	}
-
-	@property currSlices(VertexSlice[] vs)
-	{
-		_curr_slices = vs;
-	}
-
-	@property visible()
-	{
-		return _visible;
-	}
-
-	@property visible(bool value)
-	{
-		_visible = value;
-	}
-
-private:
-	VertexSlice[] _slices, _curr_slices;
-	bool          _visible;
-}
-
-class GLProvider(Vertex)
+class VertexData(Vertex)
 {
 	this(R)(OpenGL gl, VertexSpecification!Vertex vertex_specification, R vertices)
 	{

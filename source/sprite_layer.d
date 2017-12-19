@@ -10,7 +10,7 @@ struct Vertex
 }
 
 import gfm.math : vec3f, vec4f;
-import batcher : VertexSlice;
+import vertex_data : VertexSlice;
 import camera : Camera;
 
 auto sprite_data = [
@@ -27,7 +27,7 @@ class SpriteLayer
 {
 	import gfm.opengl : OpenGL, GLProgram, VertexSpecification, GLTexture2D;
 	import gfm.math : vec2i;
-	import batcher : GLProvider;
+	import vertex_data : VertexData;
 
 	this(R)(OpenGL gl, R vertices)
 	{
@@ -119,7 +119,7 @@ class SpriteLayer
 			_line_program = new GLProgram(_gl, program_source);
 		}
 
-		_glprovider = new GLProvider!Vertex(_gl, new VertexSpecification!Vertex(_line_program), vertices);
+		_glprovider = new VertexData!Vertex(_gl, new VertexSpecification!Vertex(_line_program), vertices);
 
 		import gfm.opengl;
 		int texWidth = 1024;
@@ -186,6 +186,6 @@ class SpriteLayer
 private:
 	OpenGL _gl;
 	GLProgram _line_program;
-	GLProvider!Vertex _glprovider;
+	VertexData!Vertex _glprovider;
 	GLTexture2D _texture;
 }
