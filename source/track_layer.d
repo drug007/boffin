@@ -11,6 +11,7 @@ struct Vertex
 import std.math : PI;
 import gfm.math : vec3f, vec4f;
 import batcher : VertexSlice;
+import camera : Camera;
 
 auto v12_89 = [
 	Vertex(vec3f(2592.73,  29898.1, 0), vec4f(1.0, 1.0, 1.0, 1.0),   0 * PI/180.0),
@@ -188,10 +189,10 @@ class TrackLayer
 		_line_program.destroy();
 	}
 
-	void draw(Matrix)(ref Matrix mvp, vec2i resolution)
+	void draw(Camera camera)
 	{
 		{
-			_line_program.uniform("mvp_matrix").set(mvp);
+			_line_program.uniform("mvp_matrix").set(cast()camera.modelViewProjection);
 			_line_program.use();
 			scope(exit) _line_program.unuse();
 
@@ -201,8 +202,8 @@ class TrackLayer
 		}
 
 		{
-			_point_program.uniform("mvp_matrix").set(mvp);
-			_point_program.uniform("resolution").set(resolution);
+			_point_program.uniform("mvp_matrix").set(cast()camera.modelViewProjection);
+			_point_program.uniform("resolution").set(cast()camera.viewport);
 			_point_program.use();
 			scope(exit) _point_program.unuse();
 

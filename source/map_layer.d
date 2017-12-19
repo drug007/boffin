@@ -9,6 +9,7 @@ struct Vertex
 
 import gfm.math : vec3f, vec4f;
 import batcher : VertexSlice;
+import camera : Camera;
 
 auto symbolv = [
 	Vertex(vec3f(2500.0,  25000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
@@ -82,10 +83,10 @@ class MapLayer
 		_line_program.destroy();
 	}
 
-	void draw(Matrix)(ref Matrix mvp, vec2i resolution)
+	void draw(Camera camera)
 	{
 		{
-			_line_program.uniform("mvp_matrix").set(mvp);
+			_line_program.uniform("mvp_matrix").set(cast()camera.modelViewProjection);
 			_line_program.use();
 			scope(exit) _line_program.unuse();
 

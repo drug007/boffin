@@ -206,11 +206,9 @@ class UiWidget : VerticalLayout
 		_camera.viewport(vec2i(rc.width, rc.height));
 		_camera.updateMatrices();
 
-		mat4f mvp = _camera.modelViewProjection;
-		auto aspect_ratio = _camera.aspectRatio;
-		_map_layer.draw(mvp, _camera.viewport);
-		_track_layer.draw(mvp, _camera.viewport);
-		_sprite_layer.draw(mvp, _camera.viewport);
+		_map_layer.draw(_camera);
+		_track_layer.draw(_camera);
+		_sprite_layer.draw(_camera);
 	}
 
 	~this() {

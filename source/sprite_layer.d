@@ -11,6 +11,7 @@ struct Vertex
 
 import gfm.math : vec3f, vec4f;
 import batcher : VertexSlice;
+import camera : Camera;
 
 auto sprite_data = [
 	Vertex(vec3f(24500.0,  25000.0, 0), vec4f(0.25, 0.25, 0.25, 15)),
@@ -151,15 +152,15 @@ class SpriteLayer
 		_line_program.destroy();
 	}
 
-	void draw(Matrix)(ref Matrix mvp, vec2i resolution)
+	void draw(Camera camera)
 	{
 		{
 			int tex_unit = 0;
 			_texture.use(tex_unit);
 
 			_line_program.uniform("sampler").set(tex_unit);
-			_line_program.uniform("mvp_matrix").set(mvp);
-			_line_program.uniform("resolution").set(resolution);
+			_line_program.uniform("mvp_matrix").set(cast()camera.modelViewProjection);
+			_line_program.uniform("resolution").set(cast()camera.viewport);
 			_line_program.use();
 			scope(exit) _line_program.unuse();
 
