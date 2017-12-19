@@ -196,7 +196,20 @@ class TrackLayer
 			_line_program.use();
 			scope(exit) _line_program.unuse();
 
-			_glprovider.drawVertices(vs12_89_line);
+			with(_glprovider)
+			{
+				import gfm.opengl : glDrawElements, GL_UNSIGNED_INT;
+
+				vao_points.bind();
+				foreach(vslice; vs12_89_line)
+				{
+					auto length = cast(int) vslice.length;
+					auto start  = cast(int) vslice.start;
+
+					glDrawElements(vslice.glKind, length, GL_UNSIGNED_INT, cast(void *)(start * 4));
+				}
+				vao_points.unbind();
+			}
 
 			_gl.runtimeCheck();
 		}
@@ -207,7 +220,20 @@ class TrackLayer
 			_point_program.use();
 			scope(exit) _point_program.unuse();
 
-			_glprovider.drawVertices(vs12_89_point);
+			with(_glprovider)
+			{
+				import gfm.opengl : glDrawElements, GL_UNSIGNED_INT;
+
+				vao_points.bind();
+				foreach(vslice; vs12_89_point)
+				{
+					auto length = cast(int) vslice.length;
+					auto start  = cast(int) vslice.start;
+
+					glDrawElements(vslice.glKind, length, GL_UNSIGNED_INT, cast(void *)(start * 4));
+				}
+				vao_points.unbind();
+			}
 
 			_gl.runtimeCheck();
 		}

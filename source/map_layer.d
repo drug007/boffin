@@ -90,7 +90,20 @@ class MapLayer
 			_line_program.use();
 			scope(exit) _line_program.unuse();
 
-			_glprovider.drawVertices(symbols);
+			with(_glprovider)
+			{
+				import gfm.opengl : glDrawElements, GL_UNSIGNED_INT;
+
+				vao_points.bind();
+				foreach(vslice; symbols)
+				{
+					auto length = cast(int) vslice.length;
+					auto start  = cast(int) vslice.start;
+
+					glDrawElements(vslice.glKind, length, GL_UNSIGNED_INT, cast(void *)(start * 4));
+				}
+				vao_points.unbind();
+			}
 
 			_gl.runtimeCheck();
 		}

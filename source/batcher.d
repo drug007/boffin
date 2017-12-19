@@ -117,63 +117,48 @@ class GLProvider(Vertex)
 
 		auto indices = iota(0, vertices.length).map!"cast(uint)a";
 
-		_vbo = new GLBuffer(gl, GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices.array);
-		_ibo = new GLBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices.array);
+		vbo = new GLBuffer(gl, GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices.array);
+		ibo = new GLBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices.array);
 
 		// Create an OpenGL vertex description from the Vertex structure.
-		_vert_spec = vertex_specification;
+		vert_spec = vertex_specification;
 
-		_vao_points = new GLVAO(gl);
+		vao_points = new GLVAO(gl);
 		// prepare VAO
 		{
-			_vao_points.bind();
-			_vbo.bind();
-			_ibo.bind();
-			_vert_spec.use();
-			_vao_points.unbind();
+			vao_points.bind();
+			vbo.bind();
+			ibo.bind();
+			vert_spec.use();
+			vao_points.unbind();
 		}
 	}
 
 	~this()
 	{
-		if(_vbo)
+		if(vbo)
 		{
-			_vbo.destroy();
-			_vbo = null;
+			vbo.destroy();
+			vbo = null;
 		}
-		if(_ibo)
+		if(ibo)
 		{
-			_ibo.destroy();
-			_ibo = null;
+			ibo.destroy();
+			ibo = null;
 		}
-		if(_vert_spec)
+		if(vert_spec)
 		{
-			_vert_spec.destroy();
-			_vert_spec = null;
+			vert_spec.destroy();
+			vert_spec = null;
 		}
-		if(_vao_points)
+		if(vao_points)
 		{
-			_vao_points.destroy();
-			_vao_points = null;
+			vao_points.destroy();
+			vao_points = null;
 		}
 	}
 
-	void drawVertices(VertexSlice[] slices)
-	{
-		import gfm.opengl : glDrawElements, GL_UNSIGNED_INT;
-
-		_vao_points.bind();
-		foreach(vslice; slices)
-		{
-			auto length = cast(int) vslice.length;
-			auto start  = cast(int) vslice.start;
-
-			glDrawElements(vslice.glKind, length, GL_UNSIGNED_INT, cast(void *)(start * 4));
-		}
-		_vao_points.unbind();
-	}
-
-	GLBuffer      _vbo, _ibo;
-	GLVAO         _vao_points;
-	VertexSpecification!Vertex _vert_spec;
+	GLBuffer      vbo, ibo;
+	GLVAO         vao_points;
+	VertexSpecification!Vertex vert_spec;
 }
