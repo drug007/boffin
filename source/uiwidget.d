@@ -210,7 +210,7 @@ class UiWidget : VerticalLayout
 		_camera.updateMatrices();
 
 		foreach(l; _layer)
-			l.draw(null, _camera);
+			l.draw(_render, _camera);
 	}
 
 	~this() {

@@ -88,27 +88,15 @@ class MapLayer : ILayer
 
 	void draw(Render render, Camera camera)
 	{
+		import std.typecons : scoped;
+		import render : SceneState, DrawState;
+
+		auto scene_state = scoped!SceneState(camera);
+		auto draw_state  = scoped!DrawState(_gl, _line_program, _vertex_data);
+
+		foreach(vslice; symbols)
 		{
-			_line_program.uniform("mvp_matrix").set(cast()camera.modelViewProjection);
-			_line_program.use();
-			scope(exit) _line_program.unuse();
-
-			with(_vertex_data)
-			{
-				import gfm.opengl : glDrawElements, GL_UNSIGNED_INT;
-
-				vao_points.bind();
-				foreach(vslice; symbols)
-				{
-					auto length = cast(int) vslice.length;
-					auto start  = cast(int) vslice.start;
-
-					glDrawElements(vslice.glKind, length, GL_UNSIGNED_INT, cast(void *)(start * 4));
-				}
-				vao_points.unbind();
-			}
-
-			_gl.runtimeCheck();
+			render.draw(vslice.glKind, vslice.start, vslice.length, scene_state, draw_state);
 		}
 	}
 
