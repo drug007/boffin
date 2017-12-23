@@ -93,6 +93,7 @@ class MapLayer : ILayer
 
 		auto scene_state = scoped!SceneState(camera);
 		auto draw_state  = scoped!DrawState(_gl, _line_program, _vertex_data);
+		draw_state.program.uniform("mvp_matrix").set(cast()scene_state.camera.modelViewProjection);
 
 		foreach(vslice; symbols)
 		{

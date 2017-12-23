@@ -38,7 +38,6 @@ final class Render
 	void draw(GLenum mode, size_t start, size_t length, SceneState scene_state, DrawState draw_state)
 	{
 		{
-			draw_state.program.uniform("mvp_matrix").set(cast()scene_state.camera.modelViewProjection);
 			draw_state.program.use();
 			scope(exit) draw_state.program.unuse();
 

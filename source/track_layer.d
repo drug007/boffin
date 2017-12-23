@@ -194,51 +194,26 @@ class TrackLayer : ILayer
 
 	void draw(Render render, Camera camera)
 	{
+		import std.typecons : scoped;
+		import render : SceneState, DrawState;
+
+		auto scene_state = scoped!SceneState(camera);
+		auto draw_state  = scoped!DrawState(_gl, _line_program, _vertex_data);
+
+		draw_state.program.uniform("mvp_matrix").set(cast()scene_state.camera.modelViewProjection);
+
+		foreach(vslice; vs12_89_line)
 		{
-			_line_program.uniform("mvp_matrix").set(cast()camera.modelViewProjection);
-			_line_program.use();
-			scope(exit) _line_program.unuse();
-
-			with(_vertex_data)
-			{
-				import gfm.opengl : glDrawElements, GL_UNSIGNED_INT;
-
-				vao_points.bind();
-				foreach(vslice; vs12_89_line)
-				{
-					auto length = cast(int) vslice.length;
-					auto start  = cast(int) vslice.start;
-
-					glDrawElements(vslice.glKind, length, GL_UNSIGNED_INT, cast(void *)(start * 4));
-				}
-				vao_points.unbind();
-			}
-
-			_gl.runtimeCheck();
+			render.draw(vslice.glKind, vslice.start, vslice.length, scene_state, draw_state);
 		}
+		
+		draw_state.program = _point_program;
+		draw_state.program.uniform("mvp_matrix").set(cast()scene_state.camera.modelViewProjection);
+		draw_state.program.uniform("resolution").set(cast()scene_state.camera.viewport);
 
+		foreach(vslice; vs12_89_point)
 		{
-			_point_program.uniform("mvp_matrix").set(cast()camera.modelViewProjection);
-			_point_program.uniform("resolution").set(cast()camera.viewport);
-			_point_program.use();
-			scope(exit) _point_program.unuse();
-
-			with(_vertex_data)
-			{
-				import gfm.opengl : glDrawElements, GL_UNSIGNED_INT;
-
-				vao_points.bind();
-				foreach(vslice; vs12_89_point)
-				{
-					auto length = cast(int) vslice.length;
-					auto start  = cast(int) vslice.start;
-
-					glDrawElements(vslice.glKind, length, GL_UNSIGNED_INT, cast(void *)(start * 4));
-				}
-				vao_points.unbind();
-			}
-
-			_gl.runtimeCheck();
+			render.draw(vslice.glKind, vslice.start, vslice.length, scene_state, draw_state);
 		}
 	}
 
