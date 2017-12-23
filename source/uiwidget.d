@@ -17,10 +17,12 @@ class UiWidget : VerticalLayout
 	import sprite_layer : SpriteLayer;
 	import camera : Camera;
 	import layer : ILayer;
+	import render : Render;
 
 	private
 	{
 		ILayer[]    _layer;
+		Render      _render;
 		Camera      _camera;
 		vec2i       _last_mouse_pos;
 		FileLogger  _logger;
@@ -67,6 +69,8 @@ class UiWidget : VerticalLayout
 		_camera = new Camera(width, height);
 		_camera.halfWorldWidth = 30_000.0f;
 		_camera.position = vec3f(30_000, 30_000, 0);
+
+		_render = new Render();
 
 		import gfm.opengl : GLVersion;
 		import std.stdio : stdout;
@@ -206,11 +210,12 @@ class UiWidget : VerticalLayout
 		_camera.updateMatrices();
 
 		foreach(l; _layer)
-			l.draw(_camera);
+			l.draw(null, _camera);
 	}
 
 	~this() {
 		destroy(_camera);
+		destroy(_render);
 		foreach(l; _layer)
 		{
 			destroy(l);

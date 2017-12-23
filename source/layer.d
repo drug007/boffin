@@ -1,8 +1,9 @@
 module layer;
 
 import camera : Camera;
+import render : Render;
 
 interface ILayer
 {
-	void draw(Camera camera);
+	void draw(Render render, Camera camera);
 }

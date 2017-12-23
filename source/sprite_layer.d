@@ -13,6 +13,7 @@ import gfm.math : vec3f, vec4f;
 import vertex_data : VertexSlice;
 import camera : Camera;
 import layer : ILayer;
+import render : Render;
 
 auto sprite_data = [
 	Vertex(vec3f(24500.0,  25000.0, 0), vec4f(0.25, 0.25, 0.25, 15)),
@@ -153,7 +154,7 @@ class SpriteLayer : ILayer
 		_line_program.destroy();
 	}
 
-	void draw(Camera camera)
+	void draw(Render render, Camera camera)
 	{
 		{
 			int tex_unit = 0;

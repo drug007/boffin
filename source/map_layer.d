@@ -11,6 +11,7 @@ import gfm.math : vec3f, vec4f;
 import vertex_data : VertexSlice;
 import camera : Camera;
 import layer : ILayer;
+import render : Render;
 
 auto symbolv = [
 	Vertex(vec3f(2500.0,  25000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
@@ -84,7 +85,7 @@ class MapLayer : ILayer
 		_line_program.destroy();
 	}
 
-	void draw(Camera camera)
+	void draw(Render render, Camera camera)
 	{
 		{
 			_line_program.uniform("mvp_matrix").set(cast()camera.modelViewProjection);
