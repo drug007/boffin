@@ -10,6 +10,7 @@ struct Vertex
 import gfm.math : vec3f, vec4f;
 import vertex_data : VertexSlice;
 import camera : Camera;
+import layer : ILayer;
 
 auto symbolv = [
 	Vertex(vec3f(2500.0,  25000.0, 0), vec4f(1.0, 0.5, 0.5, 1.0)),
@@ -31,7 +32,7 @@ auto symbols = [
 ];
 
 
-class MapLayer
+class MapLayer : ILayer
 {
 	import gfm.opengl : OpenGL, GLProgram, VertexSpecification;
 	import gfm.math : vec2i;

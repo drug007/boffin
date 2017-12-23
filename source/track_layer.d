@@ -12,6 +12,7 @@ import std.math : PI;
 import gfm.math : vec3f, vec4f;
 import vertex_data : VertexSlice;
 import camera : Camera;
+import layer : ILayer;
 
 auto v12_89 = [
 	Vertex(vec3f(2592.73,  29898.1, 0), vec4f(1.0, 1.0, 1.0, 1.0),   0 * PI/180.0),
@@ -54,7 +55,7 @@ auto vs12_89_point = [
 ];
 
 
-class TrackLayer
+class TrackLayer : ILayer
 {
 	import gfm.opengl : OpenGL, GLProgram, VertexSpecification;
 	import gfm.math : vec2i;

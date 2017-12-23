@@ -12,6 +12,7 @@ struct Vertex
 import gfm.math : vec3f, vec4f;
 import vertex_data : VertexSlice;
 import camera : Camera;
+import layer : ILayer;
 
 auto sprite_data = [
 	Vertex(vec3f(24500.0,  25000.0, 0), vec4f(0.25, 0.25, 0.25, 15)),
@@ -23,7 +24,7 @@ auto symbols = [
 ];
 
 
-class SpriteLayer
+class SpriteLayer : ILayer
 {
 	import gfm.opengl : OpenGL, GLProgram, VertexSpecification, GLTexture2D;
 	import gfm.math : vec2i;

@@ -16,12 +16,11 @@ class UiWidget : VerticalLayout
 	import map_layer : MapLayer;
 	import sprite_layer : SpriteLayer;
 	import camera : Camera;
+	import layer : ILayer;
 
 	private
 	{
-		TrackLayer  _track_layer;
-		MapLayer    _map_layer;
-		SpriteLayer _sprite_layer;
+		ILayer[]    _layer;
 		Camera      _camera;
 		vec2i       _last_mouse_pos;
 		FileLogger  _logger;
@@ -83,15 +82,15 @@ class UiWidget : VerticalLayout
 
 		import track_layer : v12_89;
 
-		_track_layer = new TrackLayer(_gl, v12_89);
+		_layer ~= new TrackLayer(_gl, v12_89);
 
 		import map_layer : symbolv;
 
-		_map_layer = new MapLayer(_gl, symbolv);
+		_layer ~= new MapLayer(_gl, symbolv);
 
 		import sprite_layer : sprite_data;
 
-		_sprite_layer = new SpriteLayer(_gl, sprite_data);
+		_layer ~= new SpriteLayer(_gl, sprite_data);
 
 		focusable = true;
 	}
@@ -206,15 +205,15 @@ class UiWidget : VerticalLayout
 		_camera.viewport(vec2i(rc.width, rc.height));
 		_camera.updateMatrices();
 
-		_map_layer.draw(_camera);
-		_track_layer.draw(_camera);
-		_sprite_layer.draw(_camera);
+		foreach(l; _layer)
+			l.draw(_camera);
 	}
 
 	~this() {
 		destroy(_camera);
-		destroy(_track_layer);
-		destroy(_map_layer);
-		destroy(_sprite_layer);
+		foreach(l; _layer)
+		{
+			destroy(l);
+		}
 	}
 }
