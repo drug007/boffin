@@ -72,6 +72,7 @@ class VertexData(Vertex)
 
 		assert(vertices.length);
 
+		index_kind = IndexKind.Uint;
 		auto indices = iota(0, vertices.length).map!"cast(uint)a";
 
 		vbo = new GLBuffer(gl, GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices.array);
@@ -115,6 +116,11 @@ class VertexData(Vertex)
 		}
 	}
 
+	import gfm.opengl : GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_UNSIGNED_INT;
+	enum IndexKind : GLenum { Ubyte = GL_UNSIGNED_BYTE, Ushort = GL_UNSIGNED_SHORT, Uint = GL_UNSIGNED_INT, }
+
+	/// Тип, используемый для хранения индексов
+	IndexKind index_kind;
 	GLBuffer      vbo, ibo;
 	GLVAO         vao_points;
 	VertexSpecification!Vertex vert_spec;
