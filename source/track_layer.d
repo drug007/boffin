@@ -58,9 +58,10 @@ auto vs12_89_point = [
 
 class TrackLayer : ILayer
 {
-	import gfm.opengl : OpenGL, GLProgram, VertexSpecification;
+	import gfm.opengl : OpenGL, GLProgram;
 	import gfm.math : vec2i;
 	import vertex_data : VertexData;
+	import vertex_spec : VertexSpec;
 
 	this(R)(OpenGL gl, R vertices)
 	{
@@ -181,7 +182,7 @@ class TrackLayer : ILayer
 			_line_program = new GLProgram(_gl, program_source);
 		}
 
-		_glprovider = new VertexData!Vertex(_gl, new VertexSpecification!Vertex(_point_program), vertices);
+		_glprovider = new VertexData(_gl, new VertexSpec!Vertex(_point_program), vertices);
 	}
 
 	~this()
@@ -244,5 +245,5 @@ class TrackLayer : ILayer
 private:
 	OpenGL _gl;
 	GLProgram _line_program, _point_program;
-	VertexData!Vertex _glprovider;
+	VertexData _glprovider;
 }

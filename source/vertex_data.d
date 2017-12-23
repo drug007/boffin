@@ -56,12 +56,13 @@ struct VertexSlice
 	}
 }
 
-class VertexData(Vertex)
+class VertexData
 {
-	this(R)(OpenGL gl, VertexSpecification!Vertex vertex_specification, R vertices)
+	import vertex_spec : IVertexSpec;
+	
+	this(R)(OpenGL gl, IVertexSpec vertex_specification, R vertices)
 	{
 		import std.range : ElementType;
-		static assert(is(ElementType!R == Vertex));
 		
 		import std.array : array;
 		import std.algorithm : map;
@@ -123,5 +124,5 @@ class VertexData(Vertex)
 	IndexKind index_kind;
 	GLBuffer      vbo, ibo;
 	GLVAO         vao_points;
-	VertexSpecification!Vertex vert_spec;
+	IVertexSpec vert_spec;
 }

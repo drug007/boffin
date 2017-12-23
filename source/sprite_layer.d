@@ -11,6 +11,7 @@ struct Vertex
 
 import gfm.math : vec3f, vec4f;
 import vertex_data : VertexSlice;
+import vertex_spec : VertexSpec;
 import camera : Camera;
 import layer : ILayer;
 import render : Render;
@@ -27,7 +28,7 @@ auto symbols = [
 
 class SpriteLayer : ILayer
 {
-	import gfm.opengl : OpenGL, GLProgram, VertexSpecification, GLTexture2D;
+	import gfm.opengl : OpenGL, GLProgram, GLTexture2D;
 	import gfm.math : vec2i;
 	import vertex_data : VertexData;
 
@@ -121,7 +122,7 @@ class SpriteLayer : ILayer
 			_line_program = new GLProgram(_gl, program_source);
 		}
 
-		_glprovider = new VertexData!Vertex(_gl, new VertexSpecification!Vertex(_line_program), vertices);
+		_glprovider = new VertexData(_gl, new VertexSpec!Vertex(_line_program), vertices);
 
 		import gfm.opengl;
 		int texWidth = 1024;
@@ -188,6 +189,6 @@ class SpriteLayer : ILayer
 private:
 	OpenGL _gl;
 	GLProgram _line_program;
-	VertexData!Vertex _glprovider;
+	VertexData _glprovider;
 	GLTexture2D _texture;
 }
