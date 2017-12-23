@@ -77,12 +77,12 @@ class MapLayer : ILayer
 			_line_program = new GLProgram(_gl, program_source);
 		}
 
-		_glprovider = new VertexData(_gl, new VertexSpec!Vertex(_line_program), vertices);
+		_vertex_data = new VertexData(_gl, new VertexSpec!Vertex(_line_program), vertices);
 	}
 
 	~this()
 	{
-		_glprovider.destroy();
+		_vertex_data.destroy();
 		_line_program.destroy();
 	}
 
@@ -93,7 +93,7 @@ class MapLayer : ILayer
 			_line_program.use();
 			scope(exit) _line_program.unuse();
 
-			with(_glprovider)
+			with(_vertex_data)
 			{
 				import gfm.opengl : glDrawElements, GL_UNSIGNED_INT;
 
@@ -115,5 +115,5 @@ class MapLayer : ILayer
 private:
 	OpenGL _gl;
 	GLProgram _line_program;
-	VertexData _glprovider;
+	VertexData _vertex_data;
 }
