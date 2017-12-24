@@ -165,18 +165,67 @@ class TrackLayer : ILayer
 				uniform mat4 p_matrix;
 				void main()
 				{
-					gl_Position = p_matrix * mv_matrix * vec4(position.xyz, 1.0);
+					gl_Position = mv_matrix * vec4(position.xyz, 1.0);
 					vColor = color;
 				}
 				#endif
 
+				#if GEOMETRY_SHADER
+				// 4 vertices per-primitive -- 2 for the line (1,2) and 2 for adjacency (0,3)
+				layout (lines_adjacency) in;
+				layout (triangle_strip, max_vertices = 4) out;
+
+				in vec4 vColor[]; // Output from vertex shader for each vertex
+				out vec4 fColor;  // Output to fragment shader
+				out float distance; // Distance from center of line
+
+				uniform mat4 mv_matrix;
+				uniform mat4 p_matrix;
+
+				void main()
+				{
+					fColor = vColor[0];
+
+					const float u_linewidth = 0.005;
+					const vec3 a_normal = vec3(0, 1, 0);
+					vec4 delta = vec4(a_normal * u_linewidth, 0);
+
+					gl_Position = p_matrix * gl_in[1].gl_Position - delta;
+					distance = -1;
+					EmitVertex();
+
+					gl_Position = p_matrix * gl_in[2].gl_Position - delta;
+					distance = -1;
+					EmitVertex();
+
+					gl_Position = p_matrix * gl_in[1].gl_Position + delta;
+					distance = 1;
+
+					EmitVertex();
+
+					gl_Position = p_matrix * gl_in[2].gl_Position + delta;
+					distance = 1;
+
+					EmitVertex();
+
+					EndPrimitive();
+				}
+				#endif
+
 				#if FRAGMENT_SHADER
-				in vec4 vColor;
+				in vec4 fColor;
+				in float distance;
 				out vec4 color_out;
 
 				void main()
 				{
-					color_out = vColor;
+					float d = abs(distance);
+					if (d < 0.5)
+						color_out = fColor;
+					else if (d < 1.0)
+						color_out = vec4(fColor.rgb, (1 - d)*2);
+					else
+						discard;
 				}
 				#endif
 			};
