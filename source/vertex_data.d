@@ -45,22 +45,21 @@ struct VertexSlice
 
 class VertexData
 {
+	import std.range : isInputRange;
 	import vertex_spec : IVertexSpec;
 	
 	private const GLenum _indexKind;
 	private const ubyte  _indexTypeSize;
 	
-	this(R)(OpenGL gl, IVertexSpec vertex_specification, R vertices)
+	this(V, I)(OpenGL gl, IVertexSpec vertex_specification, V vertices, I indices)
+		if (isInputRange!V && isInputRange!I)
 	{
 		import std.range : ElementType;
 		import std.typecons : Unqual, AliasSeq;
 		import std.meta : staticIndexOf;
 
-		import std.range : iota;
-		auto indices = iota(0, cast(uint) vertices.length);
-
 		// Unqualified element type of the index range
-		alias IndexElementType = Unqual!(ElementType!(typeof(indices)));
+		alias IndexElementType = Unqual!(ElementType!I);
 		// Only unsigned byte, short and int are permitted to be used as element type
 		// IndexElementKind is equal to 0 if element type is unsigned byte, 1 in case of
 		// unsigned short, 2 in case of unsigned int and -1 in case of some other type

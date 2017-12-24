@@ -77,7 +77,9 @@ class MapLayer : ILayer
 			_line_program = new GLProgram(_gl, program_source);
 		}
 
-		_vertex_data = new VertexData(_gl, new VertexSpec!Vertex(_line_program), vertices);
+		import std.range : iota;
+		auto indices = iota(0, cast(uint) vertices.length);
+		_vertex_data = new VertexData(_gl, new VertexSpec!Vertex(_line_program), vertices, indices);
 	}
 
 	~this()
