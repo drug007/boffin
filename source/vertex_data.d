@@ -47,20 +47,37 @@ class VertexData
 {
 	import vertex_spec : IVertexSpec;
 	
+	private const GLenum _indexKind;
+	private const ubyte  _indexTypeSize;
+	
 	this(R)(OpenGL gl, IVertexSpec vertex_specification, R vertices)
 	{
 		import std.range : ElementType;
+		import std.typecons : Unqual, AliasSeq;
+		import std.meta : staticIndexOf;
+
+		import std.range : iota;
+		auto indices = iota(0, cast(uint) vertices.length);
+
+		// Unqualified element type of the index range
+		alias IndexElementType = Unqual!(ElementType!(typeof(indices)));
+		// Only unsigned byte, short and int are permitted to be used as element type
+		// IndexElementKind is equal to 0 if element type is unsigned byte, 1 in case of
+		// unsigned short, 2 in case of unsigned int and -1 in case of some other type
+		enum IndexElementKind = staticIndexOf!(IndexElementType, AliasSeq!(ubyte, ushort, uint));
+		// Check if element type of the index range is permitted one
+		static assert (IndexElementKind >= 0 && IndexElementKind < 3, "Index has wrong type: `" ~ IndexElementType.stringof ~
+			"`. Possible types are ubyte, ushort and uint.");
+
+		import gfm.opengl : GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_UNSIGNED_INT;
+		_indexKind = AliasSeq!(GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_UNSIGNED_INT)[IndexElementKind];
+		_indexTypeSize = AliasSeq!(1, 2, 4)[IndexElementKind];
 		
 		import std.array : array;
-		import std.algorithm : map;
-		import std.range : iota;
-
 		import gfm.opengl : GL_ARRAY_BUFFER, GL_STATIC_DRAW,
 			GL_ELEMENT_ARRAY_BUFFER;
 
 		assert(vertices.length);
-
-		auto indices = iota(0, cast(TypeOfIndex) vertices.length);
 
 		vbo = new GLBuffer(gl, GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices.array);
 		ibo = new GLBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices.array);
@@ -103,13 +120,9 @@ class VertexData
 		}
 	}
 
-	import gfm.opengl : GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_UNSIGNED_INT;
-	enum IndexKind : GLenum { Ubyte = GL_UNSIGNED_BYTE, Ushort = GL_UNSIGNED_SHORT, Uint = GL_UNSIGNED_INT, }
-	private alias TypeOfIndex = uint;
-
 	/// Тип, используемый для хранения индексов
-	IndexKind indexKind() { return IndexKind.Uint;     }
-	auto      indexSize() { return TypeOfIndex.sizeof; }
+	auto indexKind() { return _indexKind; }
+	auto indexSize() { return _indexTypeSize; }
 
 	GLBuffer      vbo, ibo;
 	GLVAO         vao_points;
