@@ -161,11 +161,11 @@ class TrackLayer : ILayer
 				layout(location = 1) in vec4 color;
 				layout(location = 2) in float heading;
 				out vec4 vColor;
-				uniform mat4 mvp_matrix;
-				uniform ivec2 resolution;
+				uniform mat4 mv_matrix;
+				uniform mat4 p_matrix;
 				void main()
 				{
-					gl_Position = mvp_matrix * vec4(position.xyz, 1.0);
+					gl_Position = p_matrix * mv_matrix * vec4(position.xyz, 1.0);
 					vColor = color;
 				}
 				#endif
@@ -213,7 +213,8 @@ class TrackLayer : ILayer
 		auto scene_state = scoped!SceneState(camera);
 		auto draw_state  = scoped!DrawState(_gl, _line_program, _vertex_data);
 
-		draw_state.program.uniform("mvp_matrix").set(cast()scene_state.camera.modelViewProjection);
+		draw_state.program.uniform("mv_matrix").set(cast()scene_state.camera.modelViewMatrix);
+		draw_state.program.uniform("p_matrix").set(cast()scene_state.camera.projectionMatrix);
 
 		foreach(vslice; vs12_89_line)
 		{
