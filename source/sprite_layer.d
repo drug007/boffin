@@ -172,7 +172,7 @@ class SpriteLayer : ILayer
 
 		foreach(vslice; symbols)
 		{
-			render.draw(vslice.glKind, vslice.start, vslice.length, scene_state, draw_state);
+			render.draw(vslice.kind, vslice.start, vslice.length, scene_state, draw_state);
 		}
 	}
 

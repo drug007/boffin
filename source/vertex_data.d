@@ -1,33 +1,24 @@
 module vertex_data;
 
 public import gfm.math: vec2f, vec3f, vec4f;
-import gfm.opengl: GLenum, GL_TRIANGLES, GL_POINTS, GL_LINE_STRIP, GLBuffer, 
-	OpenGL, GLVAO, GLProgram, VertexSpecification;
+import gfm.opengl: GLenum, GLBuffer, OpenGL, GLVAO, GLProgram, 
+	VertexSpecification;
+
+import gfm.opengl : GL_TRIANGLES, GL_POINTS, GL_LINE_STRIP;
 
 struct VertexSlice
 {
 	private GLenum _kind;
 
-	enum Kind { Triangles, Points, LineStrip, }
-
-	auto glKind() const
-	{
-		return _kind;
+	enum Kind : GLenum { 
+		Triangles = GL_TRIANGLES, 
+		Points    = GL_POINTS, 
+		LineStrip = GL_LINE_STRIP,
 	}
 
 	auto kind() const
 	{
-		switch(_kind)
-		{
-			case GL_TRIANGLES:
-				return Kind.Triangles;
-			case GL_POINTS:
-				return Kind.Points;
-			case GL_LINE_STRIP:
-				return Kind.LineStrip;
-			default:
-				assert(0);
-		}
+		return _kind;
 	}
 
 	auto kind(Kind kind)
@@ -35,13 +26,9 @@ struct VertexSlice
 		final switch(kind)
 		{
 			case Kind.Triangles:
-				_kind = GL_TRIANGLES;
-			break;
 			case Kind.Points:
-				_kind = GL_POINTS;
-			break;
 			case Kind.LineStrip:
-				_kind = GL_LINE_STRIP;
+				_kind = kind;
 			break;
 		}
 	}

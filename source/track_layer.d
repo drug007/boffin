@@ -204,7 +204,7 @@ class TrackLayer : ILayer
 
 		foreach(vslice; vs12_89_line)
 		{
-			render.draw(vslice.glKind, vslice.start, vslice.length, scene_state, draw_state);
+			render.draw(vslice.kind, vslice.start, vslice.length, scene_state, draw_state);
 		}
 		
 		draw_state.program = _point_program;
@@ -213,7 +213,7 @@ class TrackLayer : ILayer
 
 		foreach(vslice; vs12_89_point)
 		{
-			render.draw(vslice.glKind, vslice.start, vslice.length, scene_state, draw_state);
+			render.draw(vslice.kind, vslice.start, vslice.length, scene_state, draw_state);
 		}
 	}
 
