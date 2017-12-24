@@ -50,11 +50,11 @@ auto v12_89 = [
 ];
 
 auto vs12_89_line = [
-	VertexSlice(VertexSlice.Kind.LineStrip, 0, 29),
+	VertexSlice(VertexSlice.Kind.LineStripAdjacency, 0, 31),
 ];
 
 auto vs12_89_point = [
-	VertexSlice(VertexSlice.Kind.Points, 0, 29),
+	VertexSlice(VertexSlice.Kind.Points, 1, 29),
 ];
 
 
@@ -184,8 +184,17 @@ class TrackLayer : ILayer
 			_line_program = new GLProgram(_gl, program_source);
 		}
 
+		import std.algorithm : copy;
 		import std.range : iota;
-		auto indices = iota(0, cast(uint) vertices.length);
+		uint[] indices;
+		indices.length = vertices.length + 2;
+
+		copy(iota(0, cast(uint) vertices.length), indices[1..$-1]);
+		// Дублируем первую и последнюю вершину в индексном буфере для работы в режиме
+		// adjacency
+		indices[0] = indices[1];
+		indices[$-1] = indices[$-2];
+
 		_vertex_data = new VertexData(_gl, new VertexSpec!Vertex(_point_program), vertices, indices);
 	}
 

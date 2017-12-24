@@ -4,16 +4,17 @@ public import gfm.math: vec2f, vec3f, vec4f;
 import gfm.opengl: GLenum, GLBuffer, OpenGL, GLVAO, GLProgram, 
 	VertexSpecification;
 
-import gfm.opengl : GL_TRIANGLES, GL_POINTS, GL_LINE_STRIP;
+import gfm.opengl : GL_TRIANGLES, GL_POINTS, GL_LINE_STRIP, GL_LINE_STRIP_ADJACENCY;
 
 struct VertexSlice
 {
 	private GLenum _kind;
 
 	enum Kind : GLenum { 
-		Triangles = GL_TRIANGLES, 
-		Points    = GL_POINTS, 
-		LineStrip = GL_LINE_STRIP,
+		Triangles          = GL_TRIANGLES, 
+		Points             = GL_POINTS, 
+		LineStrip          = GL_LINE_STRIP,
+		LineStripAdjacency = GL_LINE_STRIP_ADJACENCY,
 	}
 
 	auto kind() const
@@ -28,6 +29,7 @@ struct VertexSlice
 			case Kind.Triangles:
 			case Kind.Points:
 			case Kind.LineStrip:
+			case Kind.LineStripAdjacency:
 				_kind = kind;
 			break;
 		}
