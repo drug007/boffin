@@ -8,7 +8,6 @@ class Camera
 	{
 		viewport = vec2i(width, height);
 		halfWorldWidth = 1.0;
-		_model = mat4f.identity;
 		position = vec3f(0, 0, 0);
 
 		updateMatrices();
@@ -22,14 +21,18 @@ class Camera
 		_projection = mat4f.orthographic(-halfWorldWidth, +halfWorldWidth,-halfWorldWidth/_aspect_ratio, +halfWorldWidth/_aspect_ratio, -halfWorldWidth, +halfWorldWidth);
 
 		// Матрица камеры
-		_view = mat4f.lookAt(
+		auto view = mat4f.lookAt(
 			vec3f(position.x, position.y, +halfWorldWidth), // Камера находится в мировых координатах
 			vec3f(position.x, position.y, -halfWorldWidth), // И направлена в начало координат
 			vec3f(0, 1, 0)  // "Голова" находится сверху
 		);
 
+		auto model = mat4f.identity;
+
+		_model_view = view * model;
+
 		// Итоговая матрица ModelViewProjection, которая является результатом перемножения наших трех матриц
-		_mvp_matrix = _projection * _view * _model;
+		_mvp_matrix = _projection * _model_view;
 	}
 
 	/// Проекция оконной координаты в точку на плоскости z = 0
@@ -55,6 +58,16 @@ class Camera
 		return _mvp_matrix;
 	}
 
+	@property modelViewMatrix() const
+	{
+		return _model_view;
+	}
+
+	@property projectionMatrix() const
+	{
+		return _projection;
+	}
+
 	@property viewport() const
 	{
 		return _viewport;
@@ -78,7 +91,6 @@ protected:
 	float _aspect_ratio;
 
 	mat4f _projection = void, 
-		  _view = void, 
-		  _mvp_matrix = void, 
-		  _model = void;
+		  _model_view = void, 
+		  _mvp_matrix = void;
 }
