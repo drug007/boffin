@@ -182,13 +182,15 @@ class TrackLayer : ILayer
 				uniform mat4 mv_matrix;
 				uniform mat4 p_matrix;
 
+				uniform ivec2 resolution;
+
 				void main()
 				{
 					fColor = vColor[0];
 
-					const float u_linewidth = 0.005;
+					float linewidth = 2.0 / resolution.x;
 					const vec3 a_normal = vec3(0, 1, 0);
-					vec4 delta = vec4(a_normal * u_linewidth, 0);
+					vec4 delta = vec4(a_normal * linewidth, 0);
 
 					gl_Position = p_matrix * gl_in[1].gl_Position - delta;
 					distance = -1;
@@ -264,6 +266,7 @@ class TrackLayer : ILayer
 
 		draw_state.program.uniform("mv_matrix").set(cast()scene_state.camera.modelViewMatrix);
 		draw_state.program.uniform("p_matrix").set(cast()scene_state.camera.projectionMatrix);
+		draw_state.program.uniform("resolution").set(cast()scene_state.camera.viewport);
 
 		foreach(vslice; vs12_89_line)
 		{
