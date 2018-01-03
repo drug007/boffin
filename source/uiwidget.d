@@ -7,6 +7,31 @@ import dlangui.widgets.styles : Align;
 import dlangui.core.logger : Log;
 import dlangui.graphics.resources : DrawableRef, OpenGLDrawable;
 
+
+import gfm.math : vec2f, seg2f;
+
+bool intersection()(auto ref const(seg2f) s1, auto ref const(seg2f) s2, out vec2f intersection)
+{
+	auto a1 = s1.a.y - s1.b.y;
+	auto b1 = s1.b.x - s1.a.x;
+	auto c1 = s1.a.x*s1.b.y - s1.b.x*s1.a.y;
+
+	auto a2 = s2.a.y - s2.b.y;
+	auto b2 = s2.b.x - s2.a.x;
+	auto c2 = s2.a.x*s2.b.y - s2.b.x*s2.a.y;
+
+	auto d = a1*b2-a2*b1;
+
+	import std.algorithm : max;
+	if (d < float.epsilon*max(a1, a2, b1, b2))
+		return false;
+
+	intersection.x =  (b1*c2-b2*c1)/d;
+	intersection.y = -(a1*c2-a2*c1)/d;
+
+	return true;
+}
+
 class UiWidget : VerticalLayout
 {
 	import std.experimental.logger : FileLogger;
@@ -85,6 +110,7 @@ class UiWidget : VerticalLayout
 		_gl.redirectDebugOutput();
 
 		{
+			import std.math : PI;
 			import data : v12_89, vs12_89_line, vs12_89_point;
 
 			import track_layer : Vertex, vec4f;
@@ -97,7 +123,17 @@ class UiWidget : VerticalLayout
 			auto b = vec3f(  50000,  50000, 0);
 			auto c = vec3f(  30000,  30000, 0);
 
-			auto r = vec3f( 0, 10000, 0);
+			auto r = vec3f(0, 8000, 0);
+
+			auto seg1 = seg2f(a.xy, b.xy);
+			auto seg2 = seg2f(c.xy, c.xy+r.xy);
+
+			vec3f cross = void;
+			vec2f tmp = void;
+			if (intersection(seg1, seg2, tmp))
+				cross = vec3f(tmp, 0);
+			else
+				cross = vec3f();
 
 			auto vd = [
 				Vertex(a, abcolor, 0.0),
@@ -105,6 +141,8 @@ class UiWidget : VerticalLayout
 
 				Vertex(c, crcolor, 0.0),
 				Vertex(c + r, crcolor, 0.0),
+
+				Vertex(cross, crcolor, -PI/2.0f),
 			];
 
 			// Дублируем первую и последнюю вершину в индексном буфере для работы в режиме
@@ -112,6 +150,7 @@ class UiWidget : VerticalLayout
 			uint[] indices = [
 				0, 0, 1, 1, // ab line
 				2, 2, 3, 3, // cr line
+				4,
 			];
 
 			_layer ~= new TrackLayer(_gl, vd, indices,
@@ -121,6 +160,7 @@ class UiWidget : VerticalLayout
 				],
 				[
 					VertexSlice(VertexSlice.Kind.Points, 1, 2),
+					VertexSlice(VertexSlice.Kind.Points, 8, 1),
 				]
 			);
 
