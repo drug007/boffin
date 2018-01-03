@@ -5,29 +5,29 @@
 			"path": "./"
 		}
 	],
-    "build_systems":
-    [
-        {
-            "name": "Build",
-            "working_dir": "${project_path}",
-            "cmd": ["dub", "build"],
-            "file_regex": "^(source/[^:]+\\.d)\\(([0-9]+),([0-9]+)\\):(.*)$"
-        },
-        {
-            "name": "Run",
-            "working_dir": "${project_path}",
-            "cmd": ["dub", "run"],
-            "file_regex": "^(source/[^:]+\\.d)\\(([0-9]+),([0-9]+)\\):(.*)$"
-        },
-        {
-            "name": "debug",
-            // "cmd": ["gdb", "--interpreter=mi", "--args",  "./${project_base_name}"]
-        }
-    ],
-    "settings":
-    {
-        "indent_to_bracket": true,
-        "draw_white_space": "all",
-        "word_wrap": false
-    }
+	"build_systems":
+	[
+		{
+			"name": "Build",
+			"working_dir": "${project_path}",
+			"cmd": ["dub", "build"],
+			"file_regex": "^(source/[^:]+\\.d)\\(([0-9]+),([0-9]+)\\):(.*)$"
+		},
+		{
+			"name": "Run",
+			"working_dir": "${project_path}",
+			"cmd": ["dub", "run"],
+			"file_regex": "^(source/[^:]+\\.d)\\(([0-9]+),([0-9]+)\\):(.*)$"
+		},
+		{
+			"name": "debug",
+			// "cmd": ["gdb", "--interpreter=mi", "--args",  "./${project_base_name}"]
+		}
+	],
+	"settings":
+	{
+		"indent_to_bracket": true,
+		"draw_white_space": "selection",
+		"word_wrap": false
+	}
 }
