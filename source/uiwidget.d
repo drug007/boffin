@@ -84,17 +84,23 @@ class UiWidget : VerticalLayout
 		// redirect OpenGL output to our Logger
 		_gl.redirectDebugOutput();
 
-		import data : v12_89, vs12_89_line, vs12_89_point;
+		{
+			import data : v12_89, vs12_89_line, vs12_89_point;
 
-		_layer ~= new TrackLayer(_gl, v12_89, vs12_89_line, vs12_89_point);
+			_layer ~= new TrackLayer(_gl, v12_89, vs12_89_line, vs12_89_point);
+		}
 
-		import map_layer : symbolv;
+		{
+			import map_layer : symbolv;
 
-		_layer ~= new MapLayer(_gl, symbolv);
+			_layer ~= new MapLayer(_gl, symbolv);
+		}
 
-		import sprite_layer : sprite_data;
+		{
+			import sprite_layer : sprite_data;
 
-		_layer ~= new SpriteLayer(_gl, sprite_data);
+			_layer ~= new SpriteLayer(_gl, sprite_data);
+		}
 
 		focusable = true;
 	}
