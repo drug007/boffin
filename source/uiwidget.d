@@ -87,7 +87,18 @@ class UiWidget : VerticalLayout
 		{
 			import data : v12_89, vs12_89_line, vs12_89_point;
 
-			_layer ~= new TrackLayer(_gl, v12_89, vs12_89_line, vs12_89_point);
+			import std.algorithm : copy;
+			import std.range : iota;
+			uint[] indices;
+			indices.length = v12_89.length + 2;
+
+			copy(iota(0, cast(uint) v12_89.length), indices[1..$-1]);
+			// Дублируем первую и последнюю вершину в индексном буфере для работы в режиме
+			// adjacency
+			indices[0] = indices[1];
+			indices[$-1] = indices[$-2];
+
+			_layer ~= new TrackLayer(_gl, v12_89, indices, vs12_89_line, vs12_89_point);
 		}
 
 		{

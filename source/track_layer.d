@@ -22,7 +22,7 @@ class TrackLayer : ILayer
 	import vertex_data : VertexData;
 	import vertex_spec : VertexSpec;
 
-	this(R)(OpenGL gl, R vertices, VertexSlice[] lines, VertexSlice[] points)
+	this(R, I)(OpenGL gl, R vertices, I indices, VertexSlice[] lines, VertexSlice[] points)
 	{
 		import std.range : ElementType;
 		static assert(is(ElementType!R == Vertex));
@@ -194,17 +194,6 @@ class TrackLayer : ILayer
 
 		line_slices = lines;
 		point_slices = points;
-
-		import std.algorithm : copy;
-		import std.range : iota;
-		uint[] indices;
-		indices.length = vertices.length + 2;
-
-		copy(iota(0, cast(uint) vertices.length), indices[1..$-1]);
-		// Дублируем первую и последнюю вершину в индексном буфере для работы в режиме
-		// adjacency
-		indices[0] = indices[1];
-		indices[$-1] = indices[$-2];
 
 		_vertex_data = new VertexData(_gl, new VertexSpec!Vertex(_point_program), vertices, indices);
 	}
