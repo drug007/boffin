@@ -97,7 +97,7 @@ class UiWidget : VerticalLayout
 			auto b = vec3f(  50000,  50000, 0);
 			auto c = vec3f(  30000,  30000, 0);
 
-			auto r = vec3f( 10000, 10000, 0);
+			auto r = vec3f( 0, 10000, 0);
 
 			auto vd = [
 				Vertex(a, abcolor, 0.0),

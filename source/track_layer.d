@@ -147,7 +147,8 @@ class TrackLayer : ILayer
 					fColor = vColor[0];
 
 					float lw = linewidth / resolution.x;
-					const vec3 a_normal = vec3(0, 1, 0);
+					vec3 diff = gl_in[2].gl_Position.xyz - gl_in[1].gl_Position.xyz;
+					vec3 a_normal = normalize(vec3(diff.y, -diff.x, diff.z));
 					vec4 delta = vec4(a_normal * lw, 0);
 
 					gl_Position = p_matrix * gl_in[1].gl_Position - delta;
