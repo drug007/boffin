@@ -87,18 +87,44 @@ class UiWidget : VerticalLayout
 		{
 			import data : v12_89, vs12_89_line, vs12_89_point;
 
-			import std.algorithm : copy;
-			import std.range : iota;
-			uint[] indices;
-			indices.length = v12_89.length + 2;
+			import track_layer : Vertex, vec4f;
+			import vertex_data : VertexSlice;
 
-			copy(iota(0, cast(uint) v12_89.length), indices[1..$-1]);
+			auto abcolor = vec4f(1.0, 1.0, 1.0, 1.0);
+			auto crcolor = vec4f(0.0, 1.0, 0.0, 1.0);
+
+			auto a = vec3f(  10000,  30000, 0);
+			auto b = vec3f(  50000,  50000, 0);
+			auto c = vec3f(  30000,  30000, 0);
+
+			auto r = vec3f( 10000, 10000, 0);
+
+			auto vd = [
+				Vertex(a, abcolor, 0.0),
+				Vertex(b, abcolor, 0.0),
+
+				Vertex(c, crcolor, 0.0),
+				Vertex(c + r, crcolor, 0.0),
+			];
+
 			// Дублируем первую и последнюю вершину в индексном буфере для работы в режиме
 			// adjacency
-			indices[0] = indices[1];
-			indices[$-1] = indices[$-2];
+			uint[] indices = [
+				0, 0, 1, 1, // ab line
+				2, 2, 3, 3, // cr line
+			];
 
-			_layer ~= new TrackLayer(_gl, v12_89, indices, vs12_89_line, vs12_89_point);
+			_layer ~= new TrackLayer(_gl, vd, indices,
+				[
+					VertexSlice(VertexSlice.Kind.LineStripAdjacency, 0, 4),
+					VertexSlice(VertexSlice.Kind.LineStripAdjacency, 4, 4)
+				],
+				[
+					VertexSlice(VertexSlice.Kind.Points, 1, 2),
+				]
+			);
+
+			//_layer ~= new TrackLayer(_gl, v12_89, indices, vs12_89_line, vs12_89_point);
 		}
 
 		{
