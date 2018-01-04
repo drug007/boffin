@@ -37,16 +37,16 @@ class UiWidget : VerticalLayout
 	import std.experimental.logger : FileLogger;
 	import gfm.math : vec2i, vec3f;
 	import gfm.opengl : OpenGL;
-	import track_layer : TrackLayer;
+	import track_layer_render : TrackLayerRender;
 	import map_layer : MapLayer;
 	import sprite_layer : SpriteLayer;
 	import camera : Camera;
-	import layer : ILayer;
+	import layer_render : ILayerRender;
 	import render : Render;
 
 	private
 	{
-		ILayer[]    _layer;
+		ILayerRender[]    _layer;
 		Render      _render;
 		Camera      _camera;
 		vec2i       _last_mouse_pos;
@@ -113,7 +113,7 @@ class UiWidget : VerticalLayout
 			import std.math : PI;
 			import data : v12_89, vs12_89_line, vs12_89_point;
 
-			import track_layer : Vertex, vec4f;
+			import track_layer_render : Vertex, vec4f;
 			import vertex_data : VertexSlice;
 
 			auto abcolor = vec4f(1.0, 1.0, 1.0, 1.0);
@@ -153,7 +153,7 @@ class UiWidget : VerticalLayout
 				4,
 			];
 
-			_layer ~= new TrackLayer(_gl, vd, indices,
+			_layer ~= new TrackLayerRender(_gl, vd, indices,
 				[
 					VertexSlice(VertexSlice.Kind.LineStripAdjacency, 0, 4),
 					VertexSlice(VertexSlice.Kind.LineStripAdjacency, 4, 4)
@@ -164,7 +164,7 @@ class UiWidget : VerticalLayout
 				]
 			);
 
-			//_layer ~= new TrackLayer(_gl, v12_89, indices, vs12_89_line, vs12_89_point);
+			//_layer ~= new TrackLayerRender(_gl, v12_89, indices, vs12_89_line, vs12_89_point);
 		}
 
 		{

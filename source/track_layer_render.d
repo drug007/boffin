@@ -1,4 +1,4 @@
-module track_layer;
+module track_layer_render;
 
 struct Vertex
 {
@@ -12,10 +12,10 @@ import std.math : PI;
 import gfm.math : vec3f, vec4f;
 import vertex_data : VertexSlice;
 import camera : Camera;
-import layer : ILayer;
+import layer_render : ILayerRender;
 import render : Render;
 
-class TrackLayer : ILayer
+class TrackLayerRender : ILayerRender
 {
 	import gfm.opengl : OpenGL, GLProgram;
 	import gfm.math : vec2i;

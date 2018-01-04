@@ -13,7 +13,7 @@ import gfm.math : vec3f, vec4f;
 import vertex_data : VertexSlice;
 import vertex_spec : VertexSpec;
 import camera : Camera;
-import layer : ILayer;
+import layer_render : ILayerRender;
 import render : Render;
 
 auto sprite_data = [
@@ -26,7 +26,7 @@ auto symbols = [
 ];
 
 
-class SpriteLayer : ILayer
+class SpriteLayer : ILayerRender
 {
 	import gfm.opengl : OpenGL, GLProgram, GLTexture2D;
 	import gfm.math : vec2i;

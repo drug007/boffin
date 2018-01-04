@@ -11,7 +11,7 @@ import gfm.math : vec3f, vec4f;
 import vertex_data : VertexSlice;
 import vertex_spec : VertexSpec;
 import camera : Camera;
-import layer : ILayer;
+import layer_render : ILayerRender;
 import render : Render;
 
 auto symbolv = [
@@ -34,7 +34,7 @@ auto symbols = [
 ];
 
 
-class MapLayer : ILayer
+class MapLayer : ILayerRender
 {
 	import gfm.opengl : OpenGL, GLProgram;
 	import gfm.math : vec2i;

@@ -1,7 +1,7 @@
 module data;
 
 import vertex_data : vec2f, vec3f, vec4f, VertexSlice;
-import track_layer : Vertex;
+import track_layer_render : Vertex;
 
 struct Data
 {
