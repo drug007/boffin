@@ -8,7 +8,7 @@ import gfm.opengl : GL_TRIANGLES, GL_POINTS, GL_LINE_STRIP, GL_LINE_STRIP_ADJACE
 
 struct VertexSlice
 {
-	private GLenum _kind;
+	private Kind _kind;
 
 	enum Kind : GLenum { 
 		Triangles          = GL_TRIANGLES, 
