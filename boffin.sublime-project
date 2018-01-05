@@ -20,8 +20,10 @@
 			"file_regex": "^(source/[^:]+\\.d)\\(([0-9]+),([0-9]+)\\):(.*)$"
 		},
 		{
-			"name": "debug",
-			// "cmd": ["gdb", "--interpreter=mi", "--args",  "./${project_base_name}"]
+			"name": "Test",
+			"working_dir": "${project_path}",
+			"cmd": ["dub", "test"],
+			"file_regex": "^(source/[^:]+\\.d)\\(([0-9]+),([0-9]+)\\):(.*)$"
 		}
 	],
 	"settings":
