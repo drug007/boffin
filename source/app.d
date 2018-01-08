@@ -9,7 +9,7 @@ extern (C) int UIAppMain(string[] args)
 {
 
 	// create window
-	Window window = Platform.instance.createWindow("Boffin", null, WindowFlag.Resizable, 600, 500);
+	Window window = Platform.instance.createWindow("Boffin", null, WindowFlag.Fullscreen, 1920, 1080);
 	window.mainWidget = new UiWidget();
 
 	// show window
