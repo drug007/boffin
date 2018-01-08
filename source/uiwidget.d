@@ -32,6 +32,83 @@ bool intersection()(auto ref const(seg2f) s1, auto ref const(seg2f) s2, out vec2
 	return true;
 }
 
+struct TrackId
+{
+	uint source, number;
+}
+
+struct Report
+{
+	import std.datetime : SysTime;
+	import gfm.math : vec3f;
+
+	TrackId id;
+	float heading;
+	vec3f coord;
+	SysTime timestamp;
+}
+
+import std.algorithm, std.range;
+
+class TrackLayer
+{
+	Report[][uint] tracks;
+
+	void build()
+	{
+		import std.conv : castFrom;
+
+		foreach(t; tracks.byValue)
+		{
+			auto v = t.map!reportToVertex.array;
+			uint start  = castFrom!size_t.to!uint(vertices.length);
+			uint finish = castFrom!size_t.to!uint(vertices.length + v.length);
+			vertices ~= v;
+			lines ~= VertexSlice(VertexSlice.Kind.LineStripAdjacency, cast(uint)(indices.length), finish - start + 2);
+			points ~= VertexSlice(VertexSlice.Kind.Points, cast(uint)(indices.length) + 1, finish - start);
+
+			indices.reserve(finish - start + 2);
+			indices ~= [start] ~ iota(start, finish).array ~ [cast(uint)(finish - 1)];
+		}
+	}
+
+	import track_layer_render : Vertex;
+	import vertex_data : VertexSlice;
+	Vertex[] vertices;
+	uint[] indices;
+	VertexSlice[] lines, points;
+}
+
+auto reportToVertex(ref const(Report) r)
+{
+	import track_layer_render : Vertex;
+	import gfm.math : vec4f;
+
+	Vertex v = void;
+	
+	v.position = r.coord;
+	v.color = vec4f(1, 1, 1, 1);
+	v.heading = r.heading;
+
+	return v;
+}
+
+unittest
+{
+	import std.algorithm : map, equal;
+	import std.math : PI;
+	import std.range : iota;
+	import gfm.math : vec3f, vec4f;
+	import track_layer_render : Vertex;
+
+	auto track = makeTrack();
+
+	assert (track.map!reportToVertex.equal([
+		Vertex(vec3f(    0,     0,      0), vec4f(1, 1, 1, 1), PI/2), 
+		Vertex(vec3f( 1000,     0,      0), vec4f(1, 1, 1, 1), PI/2), 
+	]));
+}
+
 class UiWidget : VerticalLayout
 {
 	import std.experimental.logger : FileLogger;
@@ -164,7 +241,23 @@ class UiWidget : VerticalLayout
 				]
 			);
 
-			//_layer ~= new TrackLayerRender(_gl, v12_89, indices, vs12_89_line, vs12_89_point);
+			{
+				import std.datetime : SysTime;
+				import std.typecons : scoped;
+				auto track_layer = scoped!TrackLayer();
+				track_layer.tracks[1] = [
+					Report(TrackId(1, 202), PI/2, vec3f(20000, 30000,      0), SysTime(         0)),
+					Report(TrackId(1, 202), PI/2, vec3f(30000, 55000,      0), SysTime(10_000_000)),
+				];
+				track_layer.tracks[2] = [
+					Report(TrackId(2, 10), PI/3, vec3f(40000, 40000,      0), SysTime(         0)),
+					Report(TrackId(2, 10), PI/3, vec3f(60000, 45000,      0), SysTime(10_000_000)),
+					Report(TrackId(2, 10), PI/3, vec3f(50000, 25000,      0), SysTime(10_000_000)),
+				];
+
+				track_layer.build();
+				_layer ~= new TrackLayerRender(_gl, track_layer.vertices, track_layer.indices, track_layer.lines, track_layer.points);
+			}
 		}
 
 		{
