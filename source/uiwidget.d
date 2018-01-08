@@ -52,7 +52,14 @@ import std.algorithm, std.range;
 
 class TrackLayer
 {
-	Report[][uint] tracks;
+	protected Report[][uint] _tracks;
+
+	@property tracks() const { return _tracks; }
+
+	void add(TrackId id, Report[] data)
+	{
+		_tracks[id.number] = data;
+	}
 
 	void build()
 	{
@@ -245,15 +252,15 @@ class UiWidget : VerticalLayout
 				import std.datetime : SysTime;
 				import std.typecons : scoped;
 				auto track_layer = scoped!TrackLayer();
-				track_layer.tracks[1] = [
+				track_layer.add(TrackId(1, 1), [
 					Report(TrackId(1, 202), PI/2, vec3f(20000, 30000,      0), SysTime(         0)),
 					Report(TrackId(1, 202), PI/2, vec3f(30000, 55000,      0), SysTime(10_000_000)),
-				];
-				track_layer.tracks[2] = [
+				]);
+				track_layer.add(TrackId(1, 2), [
 					Report(TrackId(2, 10), PI/3, vec3f(40000, 40000,      0), SysTime(         0)),
 					Report(TrackId(2, 10), PI/3, vec3f(60000, 45000,      0), SysTime(10_000_000)),
 					Report(TrackId(2, 10), PI/3, vec3f(50000, 25000,      0), SysTime(10_000_000)),
-				];
+				]);
 
 				track_layer.build();
 				_layer ~= new TrackLayerRender(_gl, track_layer.vertices, track_layer.indices, track_layer.lines, track_layer.points);
