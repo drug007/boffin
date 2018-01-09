@@ -202,75 +202,22 @@ class UiWidget : VerticalLayout
 
 		{
 			import std.math : PI;
-			import data : v12_89, vs12_89_line, vs12_89_point;
+			import std.datetime : SysTime, UTC;
 
-			import track_layer_render : Vertex, vec4f;
-			import vertex_data : VertexSlice;
+			_track_layer = new TrackLayer();
+			
+			_track_layer.add(TrackId(1, 1), [
+				Report(TrackId(1, 202), PI/2, vec3f(20000, 30000,      0), SysTime(12_000_000, UTC())),
+				Report(TrackId(1, 202), PI/2, vec3f(30000, 55000,      0), SysTime(22_000_000, UTC())),
+			]);
+			_track_layer.add(TrackId(1, 2), [
+				Report(TrackId(2, 10), PI/3, vec3f(40000, 40000,      0), SysTime(10_000_000, UTC())),
+				Report(TrackId(2, 10), PI/3, vec3f(60000, 45000,      0), SysTime(20_000_000, UTC())),
+				Report(TrackId(2, 10), PI/3, vec3f(50000, 25000,      0), SysTime(30_000_000, UTC())),
+			]);
 
-			auto abcolor = vec4f(1.0, 1.0, 1.0, 1.0);
-			auto crcolor = vec4f(0.0, 1.0, 0.0, 1.0);
-
-			auto a = vec3f(  10000,  30000, 0);
-			auto b = vec3f(  50000,  50000, 0);
-			auto c = vec3f(  30000,  30000, 0);
-
-			auto r = vec3f(0, 8000, 0);
-
-			auto seg1 = seg2f(a.xy, b.xy);
-			auto seg2 = seg2f(c.xy, c.xy+r.xy);
-
-			vec3f cross = void;
-			vec2f tmp = void;
-			if (intersection(seg1, seg2, tmp))
-				cross = vec3f(tmp, 0);
-			else
-				cross = vec3f();
-
-			auto vd = [
-				Vertex(a, abcolor, 0.0),
-				Vertex(b, abcolor, 0.0),
-
-				Vertex(c, crcolor, 0.0),
-				Vertex(c + r, crcolor, 0.0),
-
-				Vertex(cross, crcolor, -PI/2.0f),
-			];
-
-			// Дублируем первую и последнюю вершину в индексном буфере для работы в режиме
-			// adjacency
-			uint[] indices = [
-				0, 0, 1, 1, // ab line
-				2, 2, 3, 3, // cr line
-				4,
-			];
-
-			_layer ~= new TrackLayerRender(_gl, vd, indices,
-				[
-					VertexSlice(VertexSlice.Kind.LineStripAdjacency, 0, 4),
-					VertexSlice(VertexSlice.Kind.LineStripAdjacency, 4, 4)
-				],
-				[
-					VertexSlice(VertexSlice.Kind.Points, 1, 2),
-					VertexSlice(VertexSlice.Kind.Points, 8, 1),
-				]
-			);
-
-			{
-				import std.datetime : SysTime, UTC;
-				_track_layer = new TrackLayer();
-				_track_layer.add(TrackId(1, 1), [
-					Report(TrackId(1, 202), PI/2, vec3f(20000, 30000,      0), SysTime(12_000_000, UTC())),
-					Report(TrackId(1, 202), PI/2, vec3f(30000, 55000,      0), SysTime(22_000_000, UTC())),
-				]);
-				_track_layer.add(TrackId(1, 2), [
-					Report(TrackId(2, 10), PI/3, vec3f(40000, 40000,      0), SysTime(10_000_000, UTC())),
-					Report(TrackId(2, 10), PI/3, vec3f(60000, 45000,      0), SysTime(20_000_000, UTC())),
-					Report(TrackId(2, 10), PI/3, vec3f(50000, 25000,      0), SysTime(30_000_000, UTC())),
-				]);
-
-				_track_layer.build();
-				_layer ~= new TrackLayerRender(_gl, _track_layer.vertices, _track_layer.indices, _track_layer.lines, _track_layer.points);
-			}
+			_track_layer.build();
+			_layer ~= new TrackLayerRender(_gl, _track_layer.vertices, _track_layer.indices, _track_layer.lines, _track_layer.points);
 		}
 
 		{
