@@ -101,22 +101,6 @@ auto reportToVertex(ref const(Report) r)
 	return v;
 }
 
-unittest
-{
-	import std.algorithm : map, equal;
-	import std.math : PI;
-	import std.range : iota;
-	import gfm.math : vec3f, vec4f;
-	import track_layer_render : Vertex;
-
-	auto track = makeTrack();
-
-	assert (track.map!reportToVertex.equal([
-		Vertex(vec3f(    0,     0,      0), vec4f(1, 1, 1, 1), PI/2), 
-		Vertex(vec3f( 1000,     0,      0), vec4f(1, 1, 1, 1), PI/2), 
-	]));
-}
-
 class UiWidget : VerticalLayout
 {
 	import std.experimental.logger : FileLogger;
