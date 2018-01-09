@@ -77,6 +77,27 @@ class TrackLayer
 		}
 	}
 
+	const(Report*)[] search(vec2f p, float distance)
+	{
+		import gfm.math : vec3f;
+
+		const(Report*)[] result;
+
+		foreach(pair; _tracks.byKeyValue)
+		{
+			auto number = pair.key;
+			foreach(ref report; pair.value)
+			{
+				auto v = report.coord - vec3f(p, 0);
+				if (v.squaredLength <= distance*distance)
+				{
+					result ~= &report;
+				}
+			}
+		}
+		return result;
+	}
+
 	import track_layer_render : Vertex;
 	import vertex_data : VertexSlice;
 	Vertex[] vertices;
@@ -287,9 +308,9 @@ class UiWidget : VerticalLayout
 			auto world_pos = _camera.rayFromMouseCoord(_last_mouse_pos);// + _camera.position;
 
 			import std.format : format;
-			childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f"d,
+			childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f %s"d,
 				_last_mouse_pos.x, _last_mouse_pos.y,
-				world_pos.x, world_pos.y
+				world_pos.x, world_pos.y, _track_layer.search(world_pos.xy, 10_000).map!(a=>*a)
 			);
 		}
 		else if (event.action == MouseAction.Wheel)
