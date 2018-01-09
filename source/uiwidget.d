@@ -284,7 +284,7 @@ class UiWidget : VerticalLayout
 			_last_mouse_pos = vec2i(event.x, event.y);
 
 			_camera.viewport = vec2i(width, height);
-			auto world_pos = _camera.projectWindowToPlane0(_last_mouse_pos);// + _camera.position;
+			auto world_pos = _camera.rayFromMouseCoord(_last_mouse_pos);// + _camera.position;
 
 			import std.format : format;
 			childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f"d,

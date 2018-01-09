@@ -21,7 +21,7 @@ class Camera
 		_projection = mat4f.orthographic(-halfWorldWidth, +halfWorldWidth,-halfWorldWidth/_aspect_ratio, +halfWorldWidth/_aspect_ratio, -halfWorldWidth, +halfWorldWidth);
 
 		// Матрица камеры
-		auto view = mat4f.lookAt(
+		_view = mat4f.lookAt(
 			vec3f(position.x, position.y, +halfWorldWidth), // Камера находится в мировых координатах
 			vec3f(position.x, position.y, -halfWorldWidth), // И направлена в начало координат
 			vec3f(0, 1, 0)  // "Голова" находится сверху
@@ -29,28 +29,27 @@ class Camera
 
 		auto model = mat4f.identity;
 
-		_model_view = view * model;
+		_model_view = _view * model;
 
 		// Итоговая матрица ModelViewProjection, которая является результатом перемножения наших трех матриц
 		_mvp_matrix = _projection * _model_view;
 	}
 
-	/// Проекция оконной координаты в точку на плоскости z = 0
-	vec3f projectWindowToPlane0(in vec2i winCoords)
+	/// create ray in world coordinate system from mouse coord
+	vec3f rayFromMouseCoord(in vec2i mouse)
 	{
-		assert(winCoords.x >= 0);
-		assert(winCoords.x <= _viewport.x);
+		import gfm.math : vec4f;
 
-		assert(winCoords.y >= 0);
-		assert(winCoords.y <= _viewport.y);
+		float x = (2.0f * mouse.x) / viewport.x - 1.0f;
+		float y = 1.0f - (2.0f * mouse.y) / viewport.y;
 
-		auto scale_x = 2 * halfWorldWidth / _viewport.x;
-		auto scale_y = 2 * halfWorldWidth / _viewport.y / _aspect_ratio;
+		auto ray_nds = vec3f(x, y, 1.0f);
+		auto ray_clip = vec4f(ray_nds.xy, -1.0, 1.0);
+		auto ray_eye = _projection.inverse * ray_clip;
+		ray_eye = vec4f(ray_eye.xy, -1.0, 0.0);
+		auto ray_wor = (_view.inverse * ray_eye).xyz + position;
 
-		auto x = winCoords.x * scale_x + position.x - halfWorldWidth;
-		auto y = (_viewport.y - winCoords.y) * scale_y + position.y - halfWorldWidth / _aspect_ratio;
-
-		return vec3f(x, y, 0.0f);
+		return ray_wor;
 	}
 
 	@property modelViewProjection() const
@@ -92,5 +91,6 @@ protected:
 
 	mat4f _projection = void, 
 		  _model_view = void, 
+		  _view = void, 
 		  _mvp_matrix = void;
 }
