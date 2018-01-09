@@ -52,8 +52,6 @@ import std.algorithm, std.range;
 
 class TrackLayer
 {
-	protected Report[][uint] _tracks;
-
 	@property tracks() const { return _tracks; }
 
 	void add(TrackId id, Report[] data)
@@ -84,6 +82,9 @@ class TrackLayer
 	Vertex[] vertices;
 	uint[] indices;
 	VertexSlice[] lines, points;
+
+	protected:
+		Report[][uint] _tracks;
 }
 
 auto reportToVertex(ref const(Report) r)
@@ -136,6 +137,7 @@ class UiWidget : VerticalLayout
 		vec2i       _last_mouse_pos;
 		FileLogger  _logger;
 		OpenGL      _gl;
+		TrackLayer  _track_layer;
 	}
 
 	this()
@@ -249,21 +251,20 @@ class UiWidget : VerticalLayout
 			);
 
 			{
-				import std.datetime : SysTime;
-				import std.typecons : scoped;
-				auto track_layer = scoped!TrackLayer();
-				track_layer.add(TrackId(1, 1), [
-					Report(TrackId(1, 202), PI/2, vec3f(20000, 30000,      0), SysTime(         0)),
-					Report(TrackId(1, 202), PI/2, vec3f(30000, 55000,      0), SysTime(10_000_000)),
+				import std.datetime : SysTime, UTC;
+				_track_layer = new TrackLayer();
+				_track_layer.add(TrackId(1, 1), [
+					Report(TrackId(1, 202), PI/2, vec3f(20000, 30000,      0), SysTime(12_000_000, UTC())),
+					Report(TrackId(1, 202), PI/2, vec3f(30000, 55000,      0), SysTime(22_000_000, UTC())),
 				]);
-				track_layer.add(TrackId(1, 2), [
-					Report(TrackId(2, 10), PI/3, vec3f(40000, 40000,      0), SysTime(         0)),
-					Report(TrackId(2, 10), PI/3, vec3f(60000, 45000,      0), SysTime(10_000_000)),
-					Report(TrackId(2, 10), PI/3, vec3f(50000, 25000,      0), SysTime(10_000_000)),
+				_track_layer.add(TrackId(1, 2), [
+					Report(TrackId(2, 10), PI/3, vec3f(40000, 40000,      0), SysTime(10_000_000, UTC())),
+					Report(TrackId(2, 10), PI/3, vec3f(60000, 45000,      0), SysTime(20_000_000, UTC())),
+					Report(TrackId(2, 10), PI/3, vec3f(50000, 25000,      0), SysTime(30_000_000, UTC())),
 				]);
 
-				track_layer.build();
-				_layer ~= new TrackLayerRender(_gl, track_layer.vertices, track_layer.indices, track_layer.lines, track_layer.points);
+				_track_layer.build();
+				_layer ~= new TrackLayerRender(_gl, _track_layer.vertices, _track_layer.indices, _track_layer.lines, _track_layer.points);
 			}
 		}
 
@@ -397,6 +398,11 @@ class UiWidget : VerticalLayout
 	}
 
 	~this() {
+		if (_track_layer !is null)
+		{
+			destroy(_track_layer);
+			_track_layer = null;
+		}
 		destroy(_camera);
 		destroy(_render);
 		foreach(l; _layer)
