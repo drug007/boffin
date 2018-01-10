@@ -7,141 +7,12 @@ import dlangui.widgets.styles : Align;
 import dlangui.core.logger : Log;
 import dlangui.graphics.resources : DrawableRef, OpenGLDrawable;
 
-
-import gfm.math : vec2f, seg2f;
-
-bool intersection()(auto ref const(seg2f) s1, auto ref const(seg2f) s2, out vec2f intersection)
-{
-	auto a1 = s1.a.y - s1.b.y;
-	auto b1 = s1.b.x - s1.a.x;
-	auto c1 = s1.a.x*s1.b.y - s1.b.x*s1.a.y;
-
-	auto a2 = s2.a.y - s2.b.y;
-	auto b2 = s2.b.x - s2.a.x;
-	auto c2 = s2.a.x*s2.b.y - s2.b.x*s2.a.y;
-
-	auto d = a1*b2-a2*b1;
-
-	import std.algorithm : max;
-	if (d < float.epsilon*max(a1, a2, b1, b2))
-		return false;
-
-	intersection.x =  (b1*c2-b2*c1)/d;
-	intersection.y = -(a1*c2-a2*c1)/d;
-
-	return true;
-}
-
-struct TrackId
-{
-	uint source, number;
-}
-
-struct Report
-{
-	import std.datetime : SysTime;
-	import gfm.math : vec3f;
-
-	TrackId id;
-	float heading;
-	vec3f coord;
-	SysTime timestamp;
-}
-
-import std.algorithm, std.range;
-
-class TrackLayer
-{
-	import gfm.opengl : OpenGL;
-	import track_layer_render : TrackLayerRender;
-
-	@property tracks() const { return _tracks; }
-
-	void add(TrackId id, Report[] data)
-	{
-		_tracks[id.number] = data;
-	}
-
-	void build(OpenGL gl)
-	{
-		import std.conv : castFrom;
-		import track_layer_render : Vertex;
-		import vertex_data : VertexSlice;
-
-		Vertex[] vertices;
-		uint[] indices;
-		VertexSlice[] lines, points;
-
-		auto reportToVertex(ref const(Report) r)
-		{
-			import track_layer_render : Vertex;
-			import gfm.math : vec4f;
-
-			Vertex v = void;
-			
-			v.position = r.coord;
-			v.color = vec4f(1, 1, 1, 1);
-			v.heading = r.heading;
-			v.source = r.id.source;
-			v.number = r.id.number;
-			v.timestamp_hi = (r.timestamp.stdTime >> 32) & 0xFFFFFFFF;
-			v.timestamp_lo =       (r.timestamp.stdTime) & 0xFFFFFFFF;
-
-			return v;
-		}
-
-		foreach(t; tracks.byValue)
-		{
-			auto v = t.map!reportToVertex.array;
-			uint start  = castFrom!size_t.to!uint(vertices.length);
-			uint finish = castFrom!size_t.to!uint(vertices.length + v.length);
-			vertices ~= v;
-			lines ~= VertexSlice(VertexSlice.Kind.LineStripAdjacency, cast(uint)(indices.length), finish - start + 2);
-			points ~= VertexSlice(VertexSlice.Kind.Points, cast(uint)(indices.length) + 1, finish - start);
-
-			indices.reserve(finish - start + 2);
-			indices ~= [start] ~ iota(start, finish).array ~ [cast(uint)(finish - 1)];
-		}
-
-		_render = new TrackLayerRender(gl, vertices, indices, lines, points);
-	}
-
-	auto search(vec2f p, float distance)
-	{
-		import gfm.math : vec3f;
-
-		float nearest = float.max;
-		const(Report)* result;
-
-		foreach(pair; _tracks.byKeyValue)
-		{
-			auto number = pair.key;
-			foreach(ref report; pair.value)
-			{
-				auto v = report.coord - vec3f(p, 0);
-				if (v.squaredLength <= distance*distance &&
-				    v.squaredLength < nearest)
-				{
-					result = &report;
-					nearest = v.squaredLength;
-				}
-			}
-		}
-		return result;
-	}
-
-	@property render() { return _render; }
-
-	protected:
-		Report[][uint] _tracks;
-		TrackLayerRender _render;
-}
-
 class UiWidget : VerticalLayout
 {
 	import std.experimental.logger : FileLogger;
 	import gfm.math : vec2i, vec3f;
 	import gfm.opengl : OpenGL;
+	import track_layer : TrackLayer;
 	import track_layer_render : TrackLayerRender;
 	import map_layer : MapLayer;
 	import sprite_layer : SpriteLayer;
@@ -218,6 +89,7 @@ class UiWidget : VerticalLayout
 		{
 			import std.math : PI;
 			import std.datetime : SysTime, UTC;
+			import track_layer : TrackId, Report;
 
 			_track_layer = new TrackLayer();
 			
@@ -232,7 +104,7 @@ class UiWidget : VerticalLayout
 			]);
 
 			_track_layer.build(_gl);
-			_layer ~= _track_layer.render;
+			_layer ~= _track_layer;
 		}
 
 		{
@@ -281,9 +153,9 @@ class UiWidget : VerticalLayout
 			);
 
 			if (nearest)
-				_track_layer.render.setHighlighted(nearest.id.source, nearest.id.number, nearest.timestamp.stdTime);
+				_track_layer.setHighlighted(nearest.id.source, nearest.id.number, nearest.timestamp.stdTime);
 			else
-				_track_layer.render.setHighlighted(0u, 0u, 0u);
+				_track_layer.setHighlighted(0u, 0u, 0u);
 		}
 		else if (event.action == MouseAction.Wheel)
 		{
@@ -375,11 +247,6 @@ class UiWidget : VerticalLayout
 	}
 
 	~this() {
-		if (_track_layer !is null)
-		{
-			destroy(_track_layer);
-			_track_layer = null;
-		}
 		destroy(_camera);
 		destroy(_render);
 		foreach(l; _layer)
