@@ -26,13 +26,8 @@ class TrackLayerRender : ILayerRender
 	import vertex_data : VertexData;
 	import vertex_spec : VertexSpec;
 
-	this(R, I)(OpenGL gl, R vertices, I indices, VertexSlice[] lines, VertexSlice[] points)
+	this()
 	{
-		import std.range : ElementType;
-		static assert(is(ElementType!R == Vertex));
-
-		_gl = gl;
-
 		{
 			const point_program_source =
 				q{#version 330 core
@@ -368,11 +363,16 @@ class TrackLayerRender : ILayerRender
 
 			_line_program = new GLProgram(_gl, line_program_source);
 		}
+	}
 
-		line_slices = lines;
-		point_slices = points;
+	this(R, I)(OpenGL gl, R vertices, I indices, VertexSlice[] lines, VertexSlice[] points)
+	{
+		import std.range : ElementType;
+		static assert(is(ElementType!R == Vertex));
 
-		_vertex_data = new VertexData(_gl, new VertexSpec!Vertex(_point_program), vertices, indices);
+		this();
+
+		setData(gl, vertices, indices, lines, points);
 	}
 
 	~this()
@@ -380,6 +380,18 @@ class TrackLayerRender : ILayerRender
 		_vertex_data.destroy();
 		_point_program.destroy();
 		_line_program.destroy();
+	}
+
+	void setData(R, I)(OpenGL gl, R vertices, I indices, VertexSlice[] lines, VertexSlice[] points)
+	{
+		_gl = gl;
+		line_slices = lines;
+		point_slices = points;
+
+		if (_vertex_data !is null)
+			_vertex_data.destroy();
+
+		_vertex_data = new VertexData(_gl, new VertexSpec!Vertex(_point_program), vertices, indices);
 	}
 
 	void draw(Render render, Camera camera)
