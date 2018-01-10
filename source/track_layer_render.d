@@ -43,65 +43,25 @@ class TrackLayerRender : ILayerRender
 				void main()
 				{
 					gl_Position = mvp_matrix * vec4(position.xyz, 1.0);
-					gl_PointSize = 3.0;
+					gl_PointSize = 13.0;
 					vColor = color;
 					vHeading = heading;
 				}
 				#endif
 
-				#if GEOMETRY_SHADER
-				layout(points) in;
-				layout(line_strip, max_vertices = 19) out;
-
-				in vec4 vColor[]; // Output from vertex shader for each vertex
-				in float vHeading[];
-				out vec4 fColor;  // Output to fragment shader
-
-				uniform ivec2 resolution;
-
-				const float PI = 3.1415926;
-
-				void main()
-				{
-					fColor = vColor[0]; // Point has only one vertex
-					float fHeading = vHeading[0];
-
-					float size = 8.0 / resolution.x;
-					float heading_length = 4 * size;
-					float aspect_ratio = resolution.x / float(resolution.y);
-					const float sides = 16;
-
-					gl_Position = gl_in[0].gl_Position;
-					EmitVertex();
-
-					vec4 offset = vec4(cos(fHeading) * heading_length, -sin(fHeading) * aspect_ratio * heading_length, 0.0, 0.0);
-					gl_Position = gl_in[0].gl_Position + offset;
-					EmitVertex();
-
-					EndPrimitive();
-
-					for (int i = 0; i <= sides; i++) {
-						// Angle between each side in radians
-						float ang = PI * 2.0 / sides * i;
-
-						// Offset from center of point
-						vec4 offset = vec4(cos(ang) * size, -sin(ang) * aspect_ratio * size, 0.0, 0.0);
-						gl_Position = gl_in[0].gl_Position + offset;
-
-						EmitVertex();
-					}
-
-					EndPrimitive();
-				}
-				#endif
-
 				#if FRAGMENT_SHADER
-				in vec4 fColor;
+				in vec4 vColor;
+				in float vHeading;
 				out vec4 color_out;
 
 				void main()
 				{
-					color_out = fColor;
+					float r = 0.0, delta = 0.0, alpha = 1.0;
+					vec2 cxy = 2.0 * gl_PointCoord - 1.0;
+					r = dot(cxy, cxy);
+					delta = fwidth(r);
+					alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);
+					color_out = vColor * alpha;
 				}
 				#endif
 			};
@@ -224,6 +184,9 @@ class TrackLayerRender : ILayerRender
 		{
 			render.draw(vslice.kind, vslice.start, vslice.length, scene_state, draw_state);
 		}
+
+		import gfm.opengl : glEnable, GL_PROGRAM_POINT_SIZE;
+		glEnable(GL_PROGRAM_POINT_SIZE);
 		
 		draw_state.program = _point_program;
 		draw_state.program.uniform("mvp_matrix").set(cast()scene_state.camera.modelViewProjection);
