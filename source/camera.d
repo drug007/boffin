@@ -83,6 +83,11 @@ class Camera
 		return _aspect_ratio;
 	}
 
+	@property scale() const
+	{
+		return 2 * halfWorldWidth / _viewport.x;
+	}
+
 protected:
 
 	vec2i _viewport;

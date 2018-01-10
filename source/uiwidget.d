@@ -278,13 +278,15 @@ class UiWidget : VerticalLayout
 			_camera.viewport = vec2i(width, height);
 			auto world_pos = _camera.rayFromMouseCoord(_last_mouse_pos);// + _camera.position;
 
-			auto nearest = _track_layer.search(world_pos.xy, 10_000);
+			auto nearest = _track_layer.search(world_pos.xy, 20 * _camera.scale);
 
 			import std.format : format;
 			import std.conv : text;
-			childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f %s"d,
+			childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f\t%.2f %s"d,
 				_last_mouse_pos.x, _last_mouse_pos.y,
-				world_pos.x, world_pos.y, nearest is null ? "null" : (*nearest).text
+				world_pos.x, world_pos.y,
+				_camera.scale, 
+				nearest is null ? "null" : (*nearest).text
 			);
 
 			if (nearest)
