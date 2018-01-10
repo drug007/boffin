@@ -132,15 +132,6 @@ class TrackLayer
 
 	@property render() { return _render; }
 
-	~this()
-	{
-		if (_render)
-		{
-			destroy(_render);
-			_render = null;
-		}
-	}
-
 	protected:
 		Report[][uint] _tracks;
 		TrackLayerRender _render;
