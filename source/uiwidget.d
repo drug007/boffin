@@ -52,6 +52,9 @@ import std.algorithm, std.range;
 
 class TrackLayer
 {
+	import gfm.opengl : OpenGL;
+	import track_layer_render : TrackLayerRender;
+
 	@property tracks() const { return _tracks; }
 
 	void add(TrackId id, Report[] data)
@@ -59,9 +62,15 @@ class TrackLayer
 		_tracks[id.number] = data;
 	}
 
-	void build()
+	void build(OpenGL gl)
 	{
 		import std.conv : castFrom;
+		import track_layer_render : Vertex;
+		import vertex_data : VertexSlice;
+
+		Vertex[] vertices;
+		uint[] indices;
+		VertexSlice[] lines, points;
 
 		auto reportToVertex(ref const(Report) r)
 		{
@@ -89,6 +98,8 @@ class TrackLayer
 			indices.reserve(finish - start + 2);
 			indices ~= [start] ~ iota(start, finish).array ~ [cast(uint)(finish - 1)];
 		}
+
+		_render = new TrackLayerRender(gl, vertices, indices, lines, points);
 	}
 
 	const(Report*)[] search(vec2f p, float distance)
@@ -112,14 +123,20 @@ class TrackLayer
 		return result;
 	}
 
-	import track_layer_render : Vertex;
-	import vertex_data : VertexSlice;
-	Vertex[] vertices;
-	uint[] indices;
-	VertexSlice[] lines, points;
+	@property render() { return _render; }
+
+	~this()
+	{
+		if (_render)
+		{
+			destroy(_render);
+			_render = null;
+		}
+	}
 
 	protected:
 		Report[][uint] _tracks;
+		TrackLayerRender _render;
 }
 
 class UiWidget : VerticalLayout
@@ -216,8 +233,8 @@ class UiWidget : VerticalLayout
 				Report(TrackId(2, 10), PI/3, vec3f(50000, 25000,      0), SysTime(30_000_000, UTC())),
 			]);
 
-			_track_layer.build();
-			_layer ~= new TrackLayerRender(_gl, _track_layer.vertices, _track_layer.indices, _track_layer.lines, _track_layer.points);
+			_track_layer.build(_gl);
+			_layer ~= _track_layer.render;
 		}
 
 		{
