@@ -6,6 +6,10 @@ struct Vertex
 	vec3f position;
 	vec4f color;
 	float heading;
+	uint  source;
+	uint  number;
+	uint  timestamp_hi;
+	uint  timestamp_lo;
 }
 
 import std.math : PI;
@@ -30,16 +34,27 @@ class TrackLayerRender : ILayerRender
 		_gl = gl;
 
 		{
-			const program_source =
+			const point_program_source =
 				q{#version 330 core
 
 				#if VERTEX_SHADER
-				layout(location = 0) in vec3 position;
-				layout(location = 1) in vec4 color;
+				layout(location = 0) in vec3  position;
+				layout(location = 1) in vec4  color;
 				layout(location = 2) in float heading;
+				layout(location = 3) in uint  source;
+				layout(location = 4) in uint  number;
+				layout(location = 5) in uint  timestamp_hi;
+				layout(location = 6) in uint  timestamp_lo;
+
 				out vec4 vColor;
 				out float vHeading;
 				out float v_size;
+				
+				flat out uint current_source;
+				flat out uint current_number;
+				flat out uint current_timestamp_hi;
+				flat out uint current_timestamp_lo;
+
 				uniform mat4 mvp_matrix;
 				uniform float size;
 				uniform float linewidth;
@@ -54,6 +69,11 @@ class TrackLayerRender : ILayerRender
 					gl_PointSize = v_size;
 					vColor = color;
 					vHeading = heading;
+					
+					current_source = source;
+					current_number = number;
+					current_timestamp_hi = timestamp_hi;
+					current_timestamp_lo = timestamp_lo;
 				}
 				#endif
 
@@ -61,11 +81,20 @@ class TrackLayerRender : ILayerRender
 				in vec4 vColor;
 				in float vHeading;
 				in float v_size;
+				flat in uint current_source;
+				flat in uint current_number;
+				flat in uint current_timestamp_hi;
+				flat in uint current_timestamp_lo;
 				out vec4 color_out;
 
 				uniform float size;
 				uniform float linewidth;
 				uniform float antialias;
+
+				uniform uint source;
+				uniform uint number;
+				uniform uint timestamp_hi;
+				uniform uint timestamp_lo;
 
 				const float PI = 3.14159265358979323846264;
 				const float M_SQRT_2 = 1.4142135623730951;
@@ -240,16 +269,23 @@ class TrackLayerRender : ILayerRender
 					// float distance = heart(p*v_size, size);
 					float distance = arrow_angle_30(p*v_size, size, size/2, linewidth, antialias);
 					// color_out = outline(distance, linewidth, antialias, fg_color, bg_color);
-					color_out = filled(distance, linewidth, antialias, vColor);
+					vec4 color;
+					if (current_source == source && current_number == number &&
+					    current_timestamp_hi == timestamp_hi &&
+					    current_timestamp_lo == timestamp_lo)
+						color = vec4(1, 0, 0, 1);
+					else
+						color = vColor;
+					color_out = filled(distance, linewidth, antialias, color);
 				}
 				#endif
 			};
 
-			_point_program = new GLProgram(_gl, program_source);
+			_point_program = new GLProgram(_gl, point_program_source);
 		}
 
 		{
-			const program_source =
+			const line_program_source =
 				q{#version 330 core
 
 				#if VERTEX_SHADER
@@ -330,7 +366,7 @@ class TrackLayerRender : ILayerRender
 				#endif
 			};
 
-			_line_program = new GLProgram(_gl, program_source);
+			_line_program = new GLProgram(_gl, line_program_source);
 		}
 
 		line_slices = lines;
@@ -372,6 +408,10 @@ class TrackLayerRender : ILayerRender
 		draw_state.program.uniform("size").set(20.0f);
 		draw_state.program.uniform("linewidth").set(2.0f);
 		draw_state.program.uniform("antialias").set(1.0f);
+		draw_state.program.uniform("source").set(_highlighted.source);
+		draw_state.program.uniform("number").set(_highlighted.number);
+		draw_state.program.uniform("timestamp_hi").set(_highlighted.timestamp_hi);
+		draw_state.program.uniform("timestamp_lo").set(_highlighted.timestamp_lo);
 
 		foreach(vslice; point_slices)
 		{
@@ -379,9 +419,27 @@ class TrackLayerRender : ILayerRender
 		}
 	}
 
+	void setHighlighted(uint source, uint number, ulong timestamp)
+	{
+		_highlighted.source = source;
+		_highlighted.number = number;
+		_highlighted.timestamp_hi = (timestamp >> 32) & 0xFFFFFFFF;
+		_highlighted.timestamp_lo = (      timestamp) & 0xFFFFFFFF;
+	}
+
 private:
 	OpenGL _gl;
 	GLProgram _line_program, _point_program;
 	VertexData _vertex_data;
 	VertexSlice[] line_slices, point_slices;
+
+	static struct Highlighted
+	{
+		uint  source;
+		uint  number;
+		uint  timestamp_hi;
+		uint  timestamp_lo;
+	}
+
+	Highlighted _highlighted;
 }

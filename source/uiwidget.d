@@ -82,6 +82,10 @@ class TrackLayer
 			v.position = r.coord;
 			v.color = vec4f(1, 1, 1, 1);
 			v.heading = r.heading;
+			v.source = r.id.source;
+			v.number = r.id.number;
+			v.timestamp_hi = (r.timestamp.stdTime >> 32) & 0xFFFFFFFF;
+			v.timestamp_lo =       (r.timestamp.stdTime) & 0xFFFFFFFF;
 
 			return v;
 		}
@@ -102,11 +106,12 @@ class TrackLayer
 		_render = new TrackLayerRender(gl, vertices, indices, lines, points);
 	}
 
-	const(Report*)[] search(vec2f p, float distance)
+	auto search(vec2f p, float distance)
 	{
 		import gfm.math : vec3f;
 
-		const(Report*)[] result;
+		float nearest = float.max;
+		const(Report)* result;
 
 		foreach(pair; _tracks.byKeyValue)
 		{
@@ -114,9 +119,11 @@ class TrackLayer
 			foreach(ref report; pair.value)
 			{
 				auto v = report.coord - vec3f(p, 0);
-				if (v.squaredLength <= distance*distance)
+				if (v.squaredLength <= distance*distance &&
+				    v.squaredLength < nearest)
 				{
-					result ~= &report;
+					result = &report;
+					nearest = v.squaredLength;
 				}
 			}
 		}
@@ -271,11 +278,19 @@ class UiWidget : VerticalLayout
 			_camera.viewport = vec2i(width, height);
 			auto world_pos = _camera.rayFromMouseCoord(_last_mouse_pos);// + _camera.position;
 
+			auto nearest = _track_layer.search(world_pos.xy, 10_000);
+
 			import std.format : format;
+			import std.conv : text;
 			childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f %s"d,
 				_last_mouse_pos.x, _last_mouse_pos.y,
-				world_pos.x, world_pos.y, _track_layer.search(world_pos.xy, 10_000).map!(a=>*a)
+				world_pos.x, world_pos.y, nearest is null ? "null" : (*nearest).text
 			);
+
+			if (nearest)
+				_track_layer.render.setHighlighted(nearest.id.source, nearest.id.number, nearest.timestamp.stdTime);
+			else
+				_track_layer.render.setHighlighted(0u, 0u, 0u);
 		}
 		else if (event.action == MouseAction.Wheel)
 		{
