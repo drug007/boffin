@@ -63,6 +63,20 @@ class TrackLayer
 	{
 		import std.conv : castFrom;
 
+		auto reportToVertex(ref const(Report) r)
+		{
+			import track_layer_render : Vertex;
+			import gfm.math : vec4f;
+
+			Vertex v = void;
+			
+			v.position = r.coord;
+			v.color = vec4f(1, 1, 1, 1);
+			v.heading = r.heading;
+
+			return v;
+		}
+
 		foreach(t; tracks.byValue)
 		{
 			auto v = t.map!reportToVertex.array;
@@ -106,20 +120,6 @@ class TrackLayer
 
 	protected:
 		Report[][uint] _tracks;
-}
-
-auto reportToVertex(ref const(Report) r)
-{
-	import track_layer_render : Vertex;
-	import gfm.math : vec4f;
-
-	Vertex v = void;
-	
-	v.position = r.coord;
-	v.color = vec4f(1, 1, 1, 1);
-	v.heading = r.heading;
-
-	return v;
 }
 
 class UiWidget : VerticalLayout
