@@ -31,6 +31,7 @@ class UiWidget : VerticalLayout
 		FileLogger      _logger;
 		OpenGL          _gl;
 		TrackLayer      _track_layer;
+		float           _grid_cell_size;
 	}
 
 	this()
@@ -89,6 +90,8 @@ class UiWidget : VerticalLayout
 		_gl.redirectDebugOutput();
 
 		{
+			_grid_cell_size = 8_000;
+			
 			_grid = new GridLayerRender();
 
 			generateGrid(_grid);
@@ -134,6 +137,10 @@ class UiWidget : VerticalLayout
 
 	private void generateGrid(GridLayerRender grid)
 	{
+		import std.math : isInfinity, isNaN;
+		if (_camera.scale.isInfinity || _camera.scale.isNaN)
+			return;
+
 		import grid_layer_render : Vertex, VertexSlice, vec4f;
 
 		// Max amout of vertical and horizontal lines of the grid
@@ -154,7 +161,19 @@ class UiWidget : VerticalLayout
 		import std.math : quantize, floor, ceil;
 		
 		auto delta = _camera.halfWorldWidth * 1.1;
-		auto size = 10_000;
+		auto size = 4*_camera.halfWorldWidth / (Col - 2);
+
+		while(size < _grid_cell_size/2)
+		{
+			_grid_cell_size /= 2;
+		}
+
+		while(size > _grid_cell_size*2)
+		{
+			_grid_cell_size *= 2;
+		}
+
+		size = _grid_cell_size;
 		
 		auto left   = (_camera.position.x - delta).quantize!floor(size);
 		auto right  = (_camera.position.x + delta).quantize!ceil(size);
@@ -191,6 +210,7 @@ class UiWidget : VerticalLayout
 	{
 		import dlangui.core.events : MouseAction;
 
+		auto need_update = false;
 		if (event.action == MouseAction.Move)
 		{
 			if (event.rbutton.isDown)
@@ -203,23 +223,8 @@ class UiWidget : VerticalLayout
 			_last_mouse_pos = vec2i(event.x, event.y);
 
 			_camera.viewport = vec2i(width, height);
-			auto world_pos = _camera.rayFromMouseCoord(_last_mouse_pos);// + _camera.position;
-
-			auto nearest = _track_layer.search(world_pos.xy, 20 * _camera.scale);
-
-			import std.format : format;
-			import std.conv : text;
-			childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f\t%.2f %s"d,
-				_last_mouse_pos.x, _last_mouse_pos.y,
-				world_pos.x, world_pos.y,
-				_camera.scale, 
-				nearest is null ? "null" : (*nearest).text
-			);
-
-			if (nearest)
-				_track_layer.setHighlighted(nearest.id.source, nearest.id.number, nearest.timestamp.stdTime);
-			else
-				_track_layer.setHighlighted(0u, 0u, 0u);
+			generateGrid(_grid);
+			need_update = true;
 		}
 		else if (event.action == MouseAction.Wheel)
 		{
@@ -228,8 +233,32 @@ class UiWidget : VerticalLayout
 				enum delta = 0.05;
 				_camera.halfWorldWidth *= (1 + delta*event.wheelDelta);
 				invalidate;
+				generateGrid(_grid);
+				need_update = true;
 			}
 		}
+
+		if (need_update)
+		{
+			auto world_pos = _camera.rayFromMouseCoord(_last_mouse_pos);// + _camera.position;
+
+			auto nearest = _track_layer.search(world_pos.xy, 20 * _camera.scale);
+
+			if (nearest)
+				_track_layer.setHighlighted(nearest.id.source, nearest.id.number, nearest.timestamp.stdTime);
+			else
+				_track_layer.setHighlighted(0u, 0u, 0u);
+
+			import std.format : format;
+			import std.conv : text;
+			childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f\t%.2f\t%.2f %s"d,
+				_last_mouse_pos.x, _last_mouse_pos.y,
+				world_pos.x, world_pos.y,
+				_camera.scale, _grid_cell_size,
+				nearest is null ? "null" : (*nearest).text
+			);
+		}
+
 		return true;
 	}
 

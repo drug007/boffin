@@ -105,6 +105,7 @@ class GridLayerRender : ILayerRender
 			};
 
 			_line_program = new GLProgram(_gl, line_program_source);
+			_vertex_data = new VertexData(_gl, new VertexSpec!Vertex(_line_program));
 		}
 	}
 
@@ -119,10 +120,7 @@ class GridLayerRender : ILayerRender
 		_gl = gl;
 		line_slices = lines;
 
-		if (_vertex_data !is null)
-			_vertex_data.destroy();
-
-		_vertex_data = new VertexData(_gl, new VertexSpec!Vertex(_line_program), vertices, indices);
+		_vertex_data.setData(gl, vertices, indices);
 	}
 
 	void draw(Render render, Camera camera)
