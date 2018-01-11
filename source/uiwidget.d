@@ -19,16 +19,18 @@ class UiWidget : VerticalLayout
 	import camera : Camera;
 	import layer_render : ILayerRender;
 	import render : Render;
+	import grid_layer_render : GridLayerRender;
 
 	private
 	{
-		ILayerRender[]    _layer;
-		Render      _render;
-		Camera      _camera;
-		vec2i       _last_mouse_pos;
-		FileLogger  _logger;
-		OpenGL      _gl;
-		TrackLayer  _track_layer;
+		ILayerRender[]  _layer;
+		GridLayerRender _grid;
+		Render          _render;
+		Camera          _camera;
+		vec2i           _last_mouse_pos;
+		FileLogger      _logger;
+		OpenGL          _gl;
+		TrackLayer      _track_layer;
 	}
 
 	this()
@@ -87,45 +89,11 @@ class UiWidget : VerticalLayout
 		_gl.redirectDebugOutput();
 
 		{
-			import grid_layer_render : GridLayerRender, Vertex, VertexSlice, vec4f;
+			_grid = new GridLayerRender();
 
-			auto grid = new GridLayerRender();
+			generateGrid(_grid);
 
-			Vertex[] vertices;
-			uint[] indices;
-			VertexSlice[] lines;
-
-			auto delta = vec3f(_camera.halfWorldWidth, _camera.halfWorldWidth /*/ _camera.aspectRatio*/, 0);
-			auto left_top = _camera.position - delta * 1.1;
-			auto right_bottom = _camera.position + delta * 1.1;
-			auto size = 10_000;
-
-			import std.math : quantize, floor, ceil;
-			auto left   = left_top.x.quantize!floor(size);
-			auto right  = right_bottom.x.quantize!ceil(size);
-			auto top    = left_top.y.quantize!ceil(size);
-			auto bottom = right_bottom.y.quantize!floor(size);
-			int i;
-			vec4f color = vec4f(0.2, 0.2, 0.2, 1.0);
-			for(auto x = left; x < right; x += size)
-			{
-				vertices ~= [ Vertex(vec3f(x, top, 0.0), color), Vertex(vec3f(x, bottom, 0.0), color)];
-				indices ~= [i, i, i+1, i+1];
-				lines ~= [ VertexSlice(VertexSlice.Kind.LineStripAdjacency, i*2, 4) ];
-				i += 2;
-			}
-
-			for(auto y = top; y < bottom; y += size)
-			{
-				vertices ~= [ Vertex(vec3f(left, y, 0.0), color), Vertex(vec3f(right, y, 0.0), color)];
-				indices ~= [i, i, i+1, i+1];
-				lines ~= [ VertexSlice(VertexSlice.Kind.LineStripAdjacency, i*2, 4) ];
-				i += 2;
-			}
-
-			grid.setData(_gl, vertices, indices, lines);
-
-			_layer ~= grid;
+			_layer ~= _grid;
 		}
 
 		{
@@ -162,6 +130,60 @@ class UiWidget : VerticalLayout
 		}
 
 		focusable = true;
+	}
+
+	private void generateGrid(GridLayerRender grid)
+	{
+		import grid_layer_render : Vertex, VertexSlice, vec4f;
+
+		// Max amout of vertical and horizontal lines of the grid
+		enum Row = 20;
+		enum Col = 20;
+
+		// Color of lines
+		vec4f color = vec4f(0.2, 0.2, 0.2, 1.0);
+
+		// Every lines has two vertices
+		Vertex[(Row + Col)*2] vertices;
+		// and four indices
+		uint[(Row + Col)*4] indices;
+		// and one VertexSlice
+		VertexSlice[] lines;
+		lines.length = Row + Col;
+
+		import std.math : quantize, floor, ceil;
+		
+		auto delta = _camera.halfWorldWidth * 1.1;
+		auto size = 10_000;
+		
+		auto left   = (_camera.position.x - delta).quantize!floor(size);
+		auto right  = (_camera.position.x + delta).quantize!ceil(size);
+		auto top    = (_camera.position.y - delta).quantize!ceil(size);
+		auto bottom = (_camera.position.y + delta).quantize!floor(size);
+		
+		// amount of lines
+		int l;
+		for(auto x = left; x < right; x += size)
+		{
+			auto v = l*2;
+			vertices[v..v+2] = [ Vertex(vec3f(x, top, 0.0), color), Vertex(vec3f(x, bottom, 0.0), color)];
+			auto i = l*4;
+			indices[i..i+4] = [v, v, v+1, v+1];
+			lines[l..l+1] = [ VertexSlice(VertexSlice.Kind.LineStripAdjacency, i, 4) ];
+			l++;
+		}
+
+		for(auto y = top; y < bottom; y += size)
+		{
+			auto v = l*2;
+			vertices[v..v+2] = [ Vertex(vec3f(left, y, 0.0), color), Vertex(vec3f(right, y, 0.0), color)];
+			auto i = l*4;
+			indices[i..i+4] = [v, v, v+1, v+1];
+			lines[l..l+1] = [ VertexSlice(VertexSlice.Kind.LineStripAdjacency, i, 4) ];
+			l++;
+		}
+
+		grid.setData(_gl, vertices[0..l*2], indices[0..l*4], lines[0..l]);
 	}
 
 	/// process key event, return true if event is processed.
