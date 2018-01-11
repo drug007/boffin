@@ -50,10 +50,35 @@ class VertexData
 	import std.range : isInputRange;
 	import vertex_spec : IVertexSpec;
 	
-	private const GLenum _indexKind;
-	private const ubyte  _indexTypeSize;
+	private GLenum _indexKind;
+	private ubyte  _indexTypeSize;
 	
+	this(OpenGL gl, IVertexSpec vertex_specification)
+	{
+		import gfm.opengl : GL_UNSIGNED_INT;
+
+		_indexKind = GL_UNSIGNED_INT;
+		_indexTypeSize = 4;
+		
+		import gfm.opengl : GL_ARRAY_BUFFER, GL_STATIC_DRAW,
+			GL_ELEMENT_ARRAY_BUFFER;
+
+		vbo = new GLBuffer(gl, GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+		ibo = new GLBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW);
+
+		// Create an OpenGL vertex description from the Vertex structure.
+		vert_spec = vertex_specification;
+
+		vao_points = new GLVAO(gl);
+	}
+
 	this(V, I)(OpenGL gl, IVertexSpec vertex_specification, V vertices, I indices)
+	{
+		this(gl, vertex_specification);
+		setData(gl, vertices, indices);
+	}
+
+	void setData(V, I)(OpenGL gl, V vertices, I indices)
 		if (isInputRange!V && isInputRange!I)
 	{
 		import std.range : ElementType;
@@ -80,13 +105,16 @@ class VertexData
 
 		assert(vertices.length);
 
-		vbo = new GLBuffer(gl, GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices.array);
-		ibo = new GLBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices.array);
+		{
+			assert(vbo);
+			vbo.setData(vertices.array);
+		}
+		{
+			assert(ibo);
+			ibo.setData(indices.array);
+		}
 
-		// Create an OpenGL vertex description from the Vertex structure.
-		vert_spec = vertex_specification;
-
-		vao_points = new GLVAO(gl);
+		assert(vao_points);
 		// prepare VAO
 		{
 			vao_points.bind();
@@ -96,6 +124,8 @@ class VertexData
 			vao_points.unbind();
 		}
 	}
+
+	
 
 	~this()
 	{
@@ -127,5 +157,5 @@ class VertexData
 
 	GLBuffer      vbo, ibo;
 	GLVAO         vao_points;
-	IVertexSpec vert_spec;
+	IVertexSpec   vert_spec;
 }
