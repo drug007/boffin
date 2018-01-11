@@ -14,6 +14,12 @@
 			"file_regex": "^(source/[^:]+\\.d)\\(([0-9]+),([0-9]+)\\):(.*)$"
 		},
 		{
+			"name": "Build force",
+			"working_dir": "${project_path}",
+			"cmd": ["dub", "build", "--force"],
+			"file_regex": "^(source/[^:]+\\.d)\\(([0-9]+),([0-9]+)\\):(.*)$"
+		},
+		{
 			"name": "Run",
 			"working_dir": "${project_path}",
 			"cmd": ["dub", "run"],
