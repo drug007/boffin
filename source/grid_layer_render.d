@@ -64,20 +64,20 @@ class GridLayerRender : ILayerRender
 					vec3 a_normal = normalize(vec3(diff.y, -diff.x, diff.z));
 					vec4 delta = vec4(a_normal * lw, 0);
 
-					gl_Position = p_matrix * gl_in[1].gl_Position - delta;
+					gl_Position = p_matrix * gl_in[1].gl_Position - delta + 0.000005;
 					distance = -1;
 					EmitVertex();
 
-					gl_Position = p_matrix * gl_in[2].gl_Position - delta;
+					gl_Position = p_matrix * gl_in[2].gl_Position - delta + 0.000005;
 					distance = -1;
 					EmitVertex();
 
-					gl_Position = p_matrix * gl_in[1].gl_Position + delta;
+					gl_Position = p_matrix * gl_in[1].gl_Position + delta + 0.000005;
 					distance = 1;
 
 					EmitVertex();
 
-					gl_Position = p_matrix * gl_in[2].gl_Position + delta;
+					gl_Position = p_matrix * gl_in[2].gl_Position + delta + 0.000005;
 					distance = 1;
 
 					EmitVertex();
@@ -94,10 +94,10 @@ class GridLayerRender : ILayerRender
 				void main()
 				{
 					float d = abs(distance);
-					if (d < 0.5)
+					if (d < 0.8)
 						color_out = fColor;
 					else if (d < 1.0)
-						color_out = vec4(fColor.rgb, (1 - d)*2);
+						color_out = vec4(fColor.rgb, (1 - d)*2*fColor.a);
 					else
 						discard;
 				}

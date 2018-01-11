@@ -87,6 +87,48 @@ class UiWidget : VerticalLayout
 		_gl.redirectDebugOutput();
 
 		{
+			import grid_layer_render : GridLayerRender, Vertex, VertexSlice, vec4f;
+
+			auto grid = new GridLayerRender();
+
+			Vertex[] vertices;
+			uint[] indices;
+			VertexSlice[] lines;
+
+			auto delta = vec3f(_camera.halfWorldWidth, _camera.halfWorldWidth /*/ _camera.aspectRatio*/, 0);
+			auto left_top = _camera.position - delta * 1.1;
+			auto right_bottom = _camera.position + delta * 1.1;
+			auto size = 10_000;
+
+			import std.math : quantize, floor, ceil;
+			auto left   = left_top.x.quantize!floor(size);
+			auto right  = right_bottom.x.quantize!ceil(size);
+			auto top    = left_top.y.quantize!ceil(size);
+			auto bottom = right_bottom.y.quantize!floor(size);
+			int i;
+			vec4f color = vec4f(0.2, 0.2, 0.2, 1.0);
+			for(auto x = left; x < right; x += size)
+			{
+				vertices ~= [ Vertex(vec3f(x, top, 0.0), color), Vertex(vec3f(x, bottom, 0.0), color)];
+				indices ~= [i, i, i+1, i+1];
+				lines ~= [ VertexSlice(VertexSlice.Kind.LineStripAdjacency, i*2, 4) ];
+				i += 2;
+			}
+
+			for(auto y = top; y < bottom; y += size)
+			{
+				vertices ~= [ Vertex(vec3f(left, y, 0.0), color), Vertex(vec3f(right, y, 0.0), color)];
+				indices ~= [i, i, i+1, i+1];
+				lines ~= [ VertexSlice(VertexSlice.Kind.LineStripAdjacency, i*2, 4) ];
+				i += 2;
+			}
+
+			grid.setData(_gl, vertices, indices, lines);
+
+			_layer ~= grid;
+		}
+
+		{
 			import std.math : PI;
 			import std.datetime : SysTime, UTC;
 			import track_layer : TrackId, Report;
@@ -117,48 +159,6 @@ class UiWidget : VerticalLayout
 			import sprite_layer : sprite_data;
 
 			_layer ~= new SpriteLayer(_gl, sprite_data);
-		}
-
-		{
-			import grid_layer_render : GridLayerRender, Vertex, VertexSlice, vec4f;
-
-			auto grid = new GridLayerRender();
-
-			Vertex[] vertices;
-			uint[] indices;
-			VertexSlice[] lines;
-
-			auto delta = vec3f(_camera.halfWorldWidth, _camera.halfWorldWidth /*/ _camera.aspectRatio*/, 0);
-			auto left_top = _camera.position - delta * 1.1;
-			auto right_bottom = _camera.position + delta * 1.1;
-			auto size = 5_000;
-
-			import std.math : quantize, floor, ceil;
-			auto left   = left_top.x.quantize!floor(size);
-			auto right  = right_bottom.x.quantize!ceil(size);
-			auto top    = left_top.y.quantize!ceil(size);
-			auto bottom = right_bottom.y.quantize!floor(size);
-			int i;
-			vec4f color = vec4f(0, 0.6, 0.1, 0.35);
-			for(auto x = left; x < right; x += size)
-			{
-				vertices ~= [ Vertex(vec3f(x, top, 0.0), color), Vertex(vec3f(x, bottom, 0.0), color)];
-				indices ~= [i, i, i+1, i+1];
-				lines ~= [ VertexSlice(VertexSlice.Kind.LineStripAdjacency, i*2, 4) ];
-				i += 2;
-			}
-
-			for(auto y = top; y < bottom; y += size)
-			{
-				vertices ~= [ Vertex(vec3f(left, y, 0.0), color), Vertex(vec3f(right, y, 0.0), color)];
-				indices ~= [i, i, i+1, i+1];
-				lines ~= [ VertexSlice(VertexSlice.Kind.LineStripAdjacency, i*2, 4) ];
-				i += 2;
-			}
-
-			grid.setData(_gl, vertices, indices, lines);
-
-			_layer ~= grid;
 		}
 
 		focusable = true;
