@@ -60,7 +60,15 @@ class UiWidget : VerticalLayout
 					layoutHeight: fill
 					TextWidget { text: "Data Visualizer"; textColor: "red"; fontSize: 150%; fontWeight: 800; fontFace: "Arial" }
 					VSpacer { layoutWeight: 30 }
-					TextWidget { id: lblPosition; text: ""; backgroundColor: 0x80202020; textColor: 0xFFE0E0 }
+					HorizontalLayout {
+						TextWidget { id: lblX; text: ""; backgroundColor: 0x70202020; textColor: 0xFFE0E0; minWidth: 40 }
+						TextWidget { id: lblY; text: ""; backgroundColor: 0x70202020; textColor: 0xFFE0E0; minWidth: 40 }
+						TextWidget { id: lblWorldX; text: ""; backgroundColor: 0x70202020; textColor: 0xFFE0E0; minWidth: 70 }
+						TextWidget { id: lblWorldY; text: ""; backgroundColor: 0x70202020; textColor: 0xFFE0E0; minWidth: 70 }
+						TextWidget { id: lblScale; text: ""; backgroundColor: 0x70202020; textColor: 0xFFE0E0; minWidth: 40 }
+						TextWidget { id: lblGridSellSize; text: ""; backgroundColor: 0x70202020; textColor: 0xFFE0E0; minWidth: 40 }
+						TextWidget { id: lblNearest; text: ""; backgroundColor: 0x70202020; textColor: 0xFFE0E0 }
+					}
 				  }
 				}
 			}, "", this);
@@ -251,12 +259,13 @@ class UiWidget : VerticalLayout
 
 			import std.format : format;
 			import std.conv : text;
-			childById("lblPosition").text = format("%d\t%d\t%.2f\t%.2f\t%.2f\t%.2f %s"d,
-				_last_mouse_pos.x, _last_mouse_pos.y,
-				world_pos.x, world_pos.y,
-				_camera.scale, _grid_cell_size,
-				nearest is null ? "null" : (*nearest).text
-			);
+			childById("lblX").text = format("%4d"d, _last_mouse_pos.x);
+			childById("lblY").text = format("%4d"d, _last_mouse_pos.y);
+			childById("lblWorldX").text = format("%.2f"d, world_pos.x);
+			childById("lblWorldY").text = format("%.2f"d, world_pos.y);
+			childById("lblScale").text = format("%.2f"d, _camera.scale);
+			childById("lblGridSellSize").text = format("%.2f"d, _grid_cell_size);
+			childById("lblNearest").text = format("%s"d, nearest is null ? "null" : (*nearest).text);
 		}
 
 		return true;
