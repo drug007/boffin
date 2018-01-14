@@ -82,6 +82,8 @@ class UiWidget : VerticalLayout
 		_camera = new Camera(width, height);
 		_camera.halfWorldWidth = 30_000.0f;
 		_camera.position = vec3f(30_000, 30_000, 0);
+		_camera.viewport(vec2i(1, 1));
+		_camera.updateMatrices();
 
 		_render = new Render();
 
