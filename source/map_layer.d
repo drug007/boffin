@@ -49,7 +49,7 @@ class MapLayer : ILayerRender
 
 		{
 			const program_source =
-				q{#version 330 core
+				"#version 330 core
 
 				#if VERTEX_SHADER
 				layout(location = 0) in vec3 position;
@@ -72,7 +72,7 @@ class MapLayer : ILayerRender
 					color_out = vColor;
 				}
 				#endif
-			};
+			";
 
 			_line_program = new GLProgram(_gl, program_source);
 		}

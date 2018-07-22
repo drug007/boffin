@@ -30,7 +30,7 @@ class TrackLayerRender : ILayerRender
 	{
 		{
 			const point_program_source =
-				q{#version 330 core
+				"#version 330 core
 
 				#if VERTEX_SHADER
 				layout(location = 0) in vec3  position;
@@ -274,14 +274,14 @@ class TrackLayerRender : ILayerRender
 					color_out = filled(distance, linewidth, antialias, color);
 				}
 				#endif
-			};
+			";
 
 			_point_program = new GLProgram(_gl, point_program_source);
 		}
 
 		{
 			const line_program_source =
-				q{#version 330 core
+				"#version 330 core
 
 				#if VERTEX_SHADER
 				layout(location = 0) in vec3 position;
@@ -359,7 +359,7 @@ class TrackLayerRender : ILayerRender
 						discard;
 				}
 				#endif
-			};
+			";
 
 			_line_program = new GLProgram(_gl, line_program_source);
 		}

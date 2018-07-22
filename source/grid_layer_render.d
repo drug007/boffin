@@ -25,7 +25,7 @@ class GridLayerRender : ILayerRender
 	{
 		{
 			const line_program_source =
-				q{#version 330 core
+				"#version 330 core
 
 				#if VERTEX_SHADER
 				layout(location = 0) in vec3 position;
@@ -102,7 +102,7 @@ class GridLayerRender : ILayerRender
 						discard;
 				}
 				#endif
-			};
+			";
 
 			_line_program = new GLProgram(_gl, line_program_source);
 			_vertex_data = new VertexData(_gl, new VertexSpec!Vertex(_line_program));

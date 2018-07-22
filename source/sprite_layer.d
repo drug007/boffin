@@ -41,7 +41,7 @@ class SpriteLayer : ILayerRender
 
 		{
 			const program_source =
-				q{#version 330 core
+				"#version 330 core
 
 				#if VERTEX_SHADER
 				layout(location = 0) in vec3 position;
@@ -117,7 +117,7 @@ class SpriteLayer : ILayerRender
   					color_out = vec4(tex.r, tex.g, tex.b, tex.a);
 				}
 				#endif
-			};
+			";
 
 			_line_program = new GLProgram(_gl, program_source);
 		}
